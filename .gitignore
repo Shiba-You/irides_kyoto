@@ -1,0 +1,6 @@
+# 環境
+/.venv_part_time/
+/.vscode/
+
+# オリジナルデータ
+/data/IDs/
