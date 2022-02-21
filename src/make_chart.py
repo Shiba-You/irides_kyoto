@@ -28,10 +28,11 @@ class make_chart:
     self.df_b = pd.DataFrame()
     self.df_output = pd.DataFrame()
     self.df_relative_ratio = pd.DataFrame()
+    self.df_standard_error = pd.DataFrame()
     self.methods = ["MEAN", "MAX", "MIN", "MED", "STD", "VAR"]
     self.group = ["A", "B"]
     self.color = ["red", "blue"]
-    self.ratio_target = "A/B"
+    self.target_params = "SE"             #! {A/B: Aの平均/Bの平均, B/A: Bの平均/Aの平均, SE: 標準値の誤差}
     self.dfs = []
     self.key = []
 
@@ -131,9 +132,31 @@ class make_chart:
       for k in self.key:
         tmp = np.append(tmp, self.df_output.at["MEAN", k+"_"+ratio[0]] / self.df_output.at["MEAN", k+"_"+ratio[-1]])
       self.df_relative_ratio.loc[ratio] = tmp
-    # print(self.df_relative_ratio)
-    self.key = self.df_relative_ratio.sort_values(self.ratio_target, axis=1, ascending=False).columns
-    self.output_data(self.df_relative_ratio.sort_values(self.ratio_target, axis=1, ascending=False).T, "./result_relative.xlsx")
+    self.key = self.df_relative_ratio.sort_values(self.target_params, axis=1, ascending=False).columns
+    self.output_data(self.df_relative_ratio.sort_values(self.target_params, axis=1, ascending=False).T, "./result_relative.xlsx")
+  
+  def calc_standard_error(self):
+    self.df_standard_error = pd.DataFrame(columns=self.key)
+    df_tmp_a = pd.DataFrame(columns=self.key)
+    df_tmp_b = pd.DataFrame(columns=self.key)
+    for idx, df in enumerate(self.dfs):
+      for k in self.key:
+        tmp = np.arange(0)
+        std =  df[k].std()
+        mean = df[k].mean()
+        for val in df[k]:
+          tmp = np.append(tmp, (val-mean)/std)
+        if idx == 0:
+          df_tmp_a[k] = tmp
+        elif idx == 1:
+          df_tmp_b[k] = tmp
+    for k in self.key:
+      tmp = np.arange(0)
+      tmp = np.append(tmp, df_tmp_a[k].mean() - df_tmp_b[k].mean())
+      self.df_standard_error[k] = tmp
+      self.df_standard_error = self.df_standard_error.rename(index={0: 'SE'})
+      self.key = self.df_standard_error.sort_values(self.target_params, axis=1, ascending=False).columns
+      self.output_data(self.df_standard_error.sort_values(self.target_params, axis=1, ascending=False).T, "./result_standard_error.xlsx")
   
   def make_box_hist_chart(self):
     pdf = PdfPages(self.output_chart_path+"_box_hist.pdf")
@@ -141,7 +164,6 @@ class make_chart:
     i = 0
     sns.set(font='IPAexGothic', font_scale = 3)
     for k in self.key:
-      print(k, i)
       if i%8==0:
         if i != 0:
           pdf.savefig()
@@ -206,10 +228,16 @@ class make_chart:
     pdf.close()
     return
   
-  def insert_text_output_pdf_fitz(self, pdf_file_path):
+  def insert_text_output_pdf_fitz(self, pdf_file_path, target):
     all_calc_results = deque([])
     all_key = deque(self.key)
-    ratios = ["A/B", "B/A"]
+    match target:
+      case "standard_error":
+        suffix = ["SE"]
+        df_target = self.df_standard_error
+      case "relative_ratio":
+        suffix = ["A/B", "B/A"]
+        df_target = self.df_relative_ratio
     rank = 0
     # for k in self.df_output.columns:
     #   all_calc_results.append(self.df_output[k].values)
@@ -250,8 +278,9 @@ class make_chart:
           _t = "{}\n{:.3g}\n{:.3g}".format(method, A_param[i], B_param[i])
           insert_texts.append(_t)
         # calc_relative を追加
-        for i, ratio in enumerate(ratios):
-          _t = "{}\n{:.3g}".format(ratio, self.df_relative_ratio.at[ratio ,title])
+        for i, val in enumerate(suffix):
+          print(df_target)
+          _t = "{}\n{:.3g}".format(val, df_target.at[val ,title])
           insert_texts.append(_t)
         p = fitz.Point(target_title_x, target_title_y)  # start point of 1st line
         rc = page.insertText( p,  # bottom-left of 1st char
@@ -263,7 +292,7 @@ class make_chart:
                             )
         for idx, text in enumerate(insert_texts):
           p = fitz.Point(target_graph_x+idx*200 - (idx!=0)*100, target_graph_y)  # start point of 1st line
-          if self.ratio_target in text:
+          if self.target_params in text:
             rc = page.insertText( p,  # bottom-left of 1st char
                                   text,  # the text (honors '\n')
                                   # fontname="cjk",  # the default font
@@ -281,7 +310,7 @@ class make_chart:
                                   color=(0,0,0)
                                 )
     # 出力名
-    output_name = "result_box_hist_with_calc.pdf"
+    output_name = self.output_chart_path + "_box_hist_with_calc_" + self.target_params + ".pdf"
     writer.save(output_name)
     return
 
@@ -300,13 +329,15 @@ class make_chart:
     # self.arange_IDs()                   #! IDs/ から必要なデータを抽出
     self.init_data()                    #! data/arange から必要データを DataFrame に整形
     self.calc_params(False)             #! 特徴量の数値分析 { output_flag: excel に出力するか否か}
-    self.calc_relative_ratio()          #! 相対比を整形
+    # self.calc_relative_ratio()          #! 相対比を整形
+    self.calc_standard_error()          #! 標準値の誤差を整形
     # self.make_box_hist_chart()          #! 箱ひげ図 / ヒストグラム 作図
     # self.make_scatter_chart()           #! 散布図 作成
     # self.make_heatmap_chart()           #! ヒートマップ 作成 （各特徴量の相関係数）
-    # self.insert_text_output_pdf_fitz(
-    #   self.output_chart_path+"_box_hist.pdf"       #! 4分割にしたグラフの path を使用 
-    # )
+    self.insert_text_output_pdf_fitz(
+      self.output_chart_path+"_box_hist.pdf",       #! 4分割にしたグラフの path を使用 
+      "standard_error"                    #! {standard_error: 標準値の誤差を記載, relative_ratio: 相対比を記載}
+    )
     # self.notification()
 
 
@@ -325,4 +356,4 @@ if __name__ == "__main__":
   mc.main()
 
 
-# %%
+ # %%
