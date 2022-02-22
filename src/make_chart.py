@@ -154,9 +154,9 @@ class make_chart:
       tmp = np.arange(0)
       tmp = np.append(tmp, df_tmp_a[k].mean() - df_tmp_b[k].mean())
       self.df_standard_error[k] = tmp
-      self.df_standard_error = self.df_standard_error.rename(index={0: 'SE'})
-      self.key = self.df_standard_error.sort_values(self.target_params, axis=1, ascending=False).columns
-      self.output_data(self.df_standard_error.sort_values(self.target_params, axis=1, ascending=False).T, "./result_standard_error.xlsx")
+    self.df_standard_error = self.df_standard_error.rename(index={0: 'SE'})
+    self.key = self.df_standard_error.sort_values(self.target_params, axis=1, ascending=False).columns
+    # self.output_data(self.df_standard_error.sort_values(self.target_params, axis=1, ascending=False).T, "./result_standard_error.xlsx")
   
   def make_box_hist_chart(self):
     pdf = PdfPages(self.output_chart_path+"_box_hist.pdf")
@@ -334,10 +334,10 @@ class make_chart:
     # self.make_box_hist_chart()          #! 箱ひげ図 / ヒストグラム 作図
     # self.make_scatter_chart()           #! 散布図 作成
     # self.make_heatmap_chart()           #! ヒートマップ 作成 （各特徴量の相関係数）
-    self.insert_text_output_pdf_fitz(
-      self.output_chart_path+"_box_hist.pdf",       #! 4分割にしたグラフの path を使用 
-      "standard_error"                    #! {standard_error: 標準値の誤差を記載, relative_ratio: 相対比を記載}
-    )
+    # self.insert_text_output_pdf_fitz(
+    #   self.output_chart_path+"_box_hist.pdf",       #! 4分割にしたグラフの path を使用 
+    #   "standard_error"                    #! {standard_error: 標準値の誤差を記載, relative_ratio: 相対比を記載}
+    # )
     # self.notification()
 
 
@@ -356,4 +356,31 @@ if __name__ == "__main__":
   mc.main()
 
 
- # %%
+# %%
+
+
+k = [ 
+  -0.59344243,
+  -0.39562828,
+  1.64845118,
+  -0.72531852, 
+  -0.13187609, 
+  0.39562828, 
+  -0.72531852, 
+  0.26375219, 
+  2.83533604, 
+  -0.26375219, 
+  -0.72531852, 
+  -0.72531852, 
+  -0.72531852, 
+  -0.65938047, 
+  -0.06593805, 
+  # 0.59344243
+]
+ans = 0
+for j in k:
+  ans += j
+print(ans)
+print(sum(k), len(k))
+print(sum(k)/len(k))
+# %%
