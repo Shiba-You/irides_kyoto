@@ -19,7 +19,7 @@ from collections import deque
 import requests
 
 class make_chart:
-  def __init__(self, input_file_name, output_file_name, output_chart_path):
+  def __init__(self, input_file_name, output_file_name, output_chart_path, target_params):
     self.input_file_name = input_file_name
     self.output_file_name = output_file_name
     self.output_chart_path = output_chart_path
@@ -32,7 +32,7 @@ class make_chart:
     self.methods = ["MEAN", "MAX", "MIN", "MED", "STD", "VAR"]
     self.group = ["A", "B"]
     self.color = ["red", "blue"]
-    self.target_params = "SE"             #! {A/B: Aの平均/Bの平均, B/A: Bの平均/Aの平均, SE: 標準値の誤差}
+    self.target_params = target_params
     self.dfs = []
     self.key = []
 
@@ -44,12 +44,10 @@ class make_chart:
       self.df_all = pd.DataFrame(xls.parse(input_sheet))
       self.df_a = self.df_all.query('群 == "A"')
       self.df_b = self.df_all.query('群 == "B"')
-      #? >>>> ここは変更する >>>>
       #! ID, 性別, 年齢, 群を除く
       self.key = list(self.df_all.columns)[4:] #! 01, 02 用
       # self.key = ["HF_実験教示", "HF_津波避難VR", "LF/HF_実験教示", "LF/HF_津波避難VR", "CVRR_実験教示", "CVRR_津波避難VR", "2. 教示後_唾液kU/l", "6. fantasy後_唾液kU/l", "2. 教示後_状態不安", "6. fantasy後_状態不安", "特性不安total", "誠実性", "情緒不安定性", "外向性", "開放性", "調和性", "楽観的自己感情"] #! 03 用
       self.dfs = [self.df_a, self.df_b]
-      #? <<<< ここは変更する <<<<br
     else:
       print("ファイルが存在しません．")
       exit()
@@ -141,9 +139,9 @@ class make_chart:
     df_tmp_b = pd.DataFrame(columns=self.key)
     for idx, df in enumerate(self.dfs):
       for k in self.key:
+        std =  self.df_all[k].std()
+        mean =  self.df_all[k].mean()
         tmp = np.arange(0)
-        std =  df[k].std()
-        mean = df[k].mean()
         for val in df[k]:
           tmp = np.append(tmp, (val-mean)/std)
         if idx == 0:
@@ -156,7 +154,7 @@ class make_chart:
       self.df_standard_error[k] = tmp
     self.df_standard_error = self.df_standard_error.rename(index={0: 'SE'})
     self.key = self.df_standard_error.sort_values(self.target_params, axis=1, ascending=False).columns
-    # self.output_data(self.df_standard_error.sort_values(self.target_params, axis=1, ascending=False).T, "./result_standard_error.xlsx")
+    self.output_data(self.df_standard_error.sort_values(self.target_params, axis=1, ascending=False).T, "./result_standard_error.xlsx")
   
   def make_box_hist_chart(self):
     pdf = PdfPages(self.output_chart_path+"_box_hist.pdf")
@@ -228,14 +226,15 @@ class make_chart:
     pdf.close()
     return
   
-  def insert_text_output_pdf_fitz(self, pdf_file_path, target):
+  def insert_text_output_pdf_fitz(self):
+    pdf_file_path = self.output_chart_path+"_box_hist.pdf"
     all_calc_results = deque([])
     all_key = deque(self.key)
-    match target:
-      case "standard_error":
+    match self.target_params:
+      case "SE":
         suffix = ["SE"]
         df_target = self.df_standard_error
-      case "relative_ratio":
+      case "A/B" | "B/A":
         suffix = ["A/B", "B/A"]
         df_target = self.df_relative_ratio
     rank = 0
@@ -279,7 +278,6 @@ class make_chart:
           insert_texts.append(_t)
         # calc_relative を追加
         for i, val in enumerate(suffix):
-          print(df_target)
           _t = "{}\n{:.3g}".format(val, df_target.at[val ,title])
           insert_texts.append(_t)
         p = fitz.Point(target_title_x, target_title_y)  # start point of 1st line
@@ -331,13 +329,10 @@ class make_chart:
     self.calc_params(False)             #! 特徴量の数値分析 { output_flag: excel に出力するか否か}
     # self.calc_relative_ratio()          #! 相対比を整形
     self.calc_standard_error()          #! 標準値の誤差を整形
-    # self.make_box_hist_chart()          #! 箱ひげ図 / ヒストグラム 作図
+    self.make_box_hist_chart()          #! 箱ひげ図 / ヒストグラム 作図
     # self.make_scatter_chart()           #! 散布図 作成
     # self.make_heatmap_chart()           #! ヒートマップ 作成 （各特徴量の相関係数）
-    # self.insert_text_output_pdf_fitz(
-    #   self.output_chart_path+"_box_hist.pdf",       #! 4分割にしたグラフの path を使用 
-    #   "standard_error"                    #! {standard_error: 標準値の誤差を記載, relative_ratio: 相対比を記載}
-    # )
+    self.insert_text_output_pdf_fitz()  #! 分析結果を箱ひげ図 / ヒストグラムに加筆
     # self.notification()
 
 
@@ -348,39 +343,13 @@ if __name__ == "__main__":
   output_chart_name = "result"
   dir_names = ["01_all_params", "02_experiment_params", "03_important_params"]
   this_dir = 0                                    #! {0: 01_all_params, 1: 02_experiment_params, 2: 03_important_params}
+  target_params = "SE"                            #! {A/B: Aの平均/Bの平均, B/A: Bの平均/Aの平均, SE: 標準値の誤差}
   #? <<<< ここは変更する <<<<
   input_file_path = os.path.join("../data/arange", dir_names[this_dir], input_file_name)
   output_file_path = os.path.join("../results/", dir_names[this_dir], output_file_name)
   output_chart_path = os.path.join("../results/", dir_names[this_dir], output_chart_name)
-  mc = make_chart(input_file_path, output_file_path, output_chart_path)
+  mc = make_chart(input_file_path, output_file_path, output_chart_path, target_params)
   mc.main()
 
 
-# %%
-
-
-k = [ 
-  -0.59344243,
-  -0.39562828,
-  1.64845118,
-  -0.72531852, 
-  -0.13187609, 
-  0.39562828, 
-  -0.72531852, 
-  0.26375219, 
-  2.83533604, 
-  -0.26375219, 
-  -0.72531852, 
-  -0.72531852, 
-  -0.72531852, 
-  -0.65938047, 
-  -0.06593805, 
-  # 0.59344243
-]
-ans = 0
-for j in k:
-  ans += j
-print(ans)
-print(sum(k), len(k))
-print(sum(k)/len(k))
 # %%
