@@ -120,7 +120,7 @@ class make_chart:
         case "VAR":
           self.df_output.loc["VAR"] = tmp
     if output_flag:
-      self.output_data(self.df_output, self.output_file_name)
+      self.output_data(self.df_output.T, self.output_file_name)
     return
 
   def calc_relative_ratio(self):
@@ -131,7 +131,8 @@ class make_chart:
         tmp = np.append(tmp, self.df_output.at["MEAN", k+"_"+ratio[0]] / self.df_output.at["MEAN", k+"_"+ratio[-1]])
       self.df_relative_ratio.loc[ratio] = tmp
     self.key = self.df_relative_ratio.sort_values(self.target_params, axis=1, ascending=False).columns
-    self.output_data(self.df_relative_ratio.sort_values(self.target_params, axis=1, ascending=False).T, "./result_relative.xlsx")
+    # self.output_data(self.df_relative_ratio.sort_values(self.target_params, axis=1, ascending=False).T, "./result_relative.xlsx")
+    self.output_data(self.df_relative_ratio.T, "./result_relative.xlsx")
   
   def calc_standard_error(self):
     self.df_standard_error = pd.DataFrame(columns=self.key)
@@ -141,20 +142,21 @@ class make_chart:
       for k in self.key:
         std =  self.df_all[k].std()
         mean =  self.df_all[k].mean()
-        tmp = np.arange(0)
+        _t = np.arange(0)
         for val in df[k]:
-          tmp = np.append(tmp, (val-mean)/std)
+          _t = np.append(_t, (val-mean)/std)
         if idx == 0:
-          df_tmp_a[k] = tmp
+          df_tmp_a[k] = _t
         elif idx == 1:
-          df_tmp_b[k] = tmp
+          df_tmp_b[k] = _t
     for k in self.key:
-      tmp = np.arange(0)
-      tmp = np.append(tmp, df_tmp_a[k].mean() - df_tmp_b[k].mean())
-      self.df_standard_error[k] = tmp
+      __t = np.arange(0)
+      __t = np.append(__t, df_tmp_a[k].mean() - df_tmp_b[k].mean())
+      self.df_standard_error[k] = __t
     self.df_standard_error = self.df_standard_error.rename(index={0: 'SE'})
     self.key = self.df_standard_error.sort_values(self.target_params, axis=1, ascending=False).columns
     self.output_data(self.df_standard_error.sort_values(self.target_params, axis=1, ascending=False).T, "./result_standard_error.xlsx")
+    # self.output_data(self.df_standard_error.T, "./result_standard_error.xlsx")
   
   def make_box_hist_chart(self):
     pdf = PdfPages(self.output_chart_path+"_box_hist.pdf")
@@ -327,12 +329,12 @@ class make_chart:
     # self.arange_IDs()                   #! IDs/ から必要なデータを抽出
     self.init_data()                    #! data/arange から必要データを DataFrame に整形
     self.calc_params(False)             #! 特徴量の数値分析 { output_flag: excel に出力するか否か}
-    # self.calc_relative_ratio()          #! 相対比を整形
-    self.calc_standard_error()          #! 標準値の誤差を整形
-    self.make_box_hist_chart()          #! 箱ひげ図 / ヒストグラム 作図
+    self.calc_relative_ratio()          #! 相対比を整形
+    # self.calc_standard_error()          #! 標準値の誤差を整形
+    # self.make_box_hist_chart()          #! 箱ひげ図 / ヒストグラム 作図
     # self.make_scatter_chart()           #! 散布図 作成
     # self.make_heatmap_chart()           #! ヒートマップ 作成 （各特徴量の相関係数）
-    self.insert_text_output_pdf_fitz()  #! 分析結果を箱ひげ図 / ヒストグラムに加筆
+    # self.insert_text_output_pdf_fitz()  #! 分析結果を箱ひげ図 / ヒストグラムに加筆
     # self.notification()
 
 
@@ -343,7 +345,7 @@ if __name__ == "__main__":
   output_chart_name = "result"
   dir_names = ["01_all_params", "02_experiment_params", "03_important_params"]
   this_dir = 0                                    #! {0: 01_all_params, 1: 02_experiment_params, 2: 03_important_params}
-  target_params = "SE"                            #! {A/B: Aの平均/Bの平均, B/A: Bの平均/Aの平均, SE: 標準値の誤差}
+  target_params = "A/B"                            #! {A/B: Aの平均/Bの平均, B/A: Bの平均/Aの平均, SE: 標準値の誤差}
   #? <<<< ここは変更する <<<<
   input_file_path = os.path.join("../data/arange", dir_names[this_dir], input_file_name)
   output_file_path = os.path.join("../results/", dir_names[this_dir], output_file_name)
