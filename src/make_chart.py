@@ -47,7 +47,7 @@ class make_chart:
       #! ID, 性別, 年齢, 群を除く
       self.key = list(self.df_all.columns)[4:] #! 01, 02 用
       # self.key = ["HF_実験教示", "HF_津波避難VR", "LF/HF_実験教示", "LF/HF_津波避難VR", "CVRR_実験教示", "CVRR_津波避難VR", "2. 教示後_唾液kU/l", "6. fantasy後_唾液kU/l", "2. 教示後_状態不安", "6. fantasy後_状態不安", "特性不安total", "誠実性", "情緒不安定性", "外向性", "開放性", "調和性", "楽観的自己感情"] #! 03 用
-      self.dfs = [self.df_a, self.df_b]
+      self.dfs = [self.df_all, self.df_a, self.df_b]
     else:
       print("ファイルが存在しません．")
       exit()
@@ -119,6 +119,23 @@ class make_chart:
           self.df_output.loc["STD"] = tmp
         case "VAR":
           self.df_output.loc["VAR"] = tmp
+    if output_flag:
+      self.output_data(self.df_output.T, self.output_file_name)
+    return
+  
+  def calc_params_imoto(self, output_flag):
+    self.df_output = pd.DataFrame(columns=self.key)
+    df_groups = ["全体", "A群", "B群"]
+    for group, df in zip(df_groups, self.dfs):
+      for method in ["平均", "標準偏差"]:
+        tmp = np.arange(0)
+        for k in self.key:
+          match method:
+            case "平均":
+              tmp = np.append(tmp, df[k].mean())
+            case "標準偏差":
+              tmp = np.append(tmp, df[k].std())
+        self.df_output.loc[group + "_" + method] = tmp
     if output_flag:
       self.output_data(self.df_output.T, self.output_file_name)
     return
@@ -328,8 +345,9 @@ class make_chart:
   def main(self):
     # self.arange_IDs()                   #! IDs/ から必要なデータを抽出
     self.init_data()                    #! data/arange から必要データを DataFrame に整形
-    self.calc_params(False)             #! 特徴量の数値分析 { output_flag: excel に出力するか否か}
-    self.calc_relative_ratio()          #! 相対比を整形
+    # self.calc_params(False)             #! 特徴量の数値分析 { output_flag: excel に出力するか否か}
+    self.calc_params_imoto(True)       #! 特徴量の数値分析（各群の平均・標準偏差のみ） { output_flag: excel に出力するか否か}
+    # self.calc_relative_ratio()          #! 相対比を整形
     # self.calc_standard_error()          #! 標準値の誤差を整形
     # self.make_box_hist_chart()          #! 箱ひげ図 / ヒストグラム 作図
     # self.make_scatter_chart()           #! 散布図 作成
@@ -341,7 +359,7 @@ class make_chart:
 if __name__ == "__main__":
   #? >>>> ここは変更する >>>>
   input_file_name = "220208 調査報告書+IDs.xlsx"
-  output_file_name = "result.xlsx"
+  output_file_name = "result_imoto.xlsx"
   output_chart_name = "result"
   dir_names = ["01_all_params", "02_experiment_params", "03_important_params"]
   this_dir = 0                                    #! {0: 01_all_params, 1: 02_experiment_params, 2: 03_important_params}
@@ -352,6 +370,5 @@ if __name__ == "__main__":
   output_chart_path = os.path.join("../results/", dir_names[this_dir], output_chart_name)
   mc = make_chart(input_file_path, output_file_path, output_chart_path, target_params)
   mc.main()
-
 
 # %%
