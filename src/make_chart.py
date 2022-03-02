@@ -131,8 +131,8 @@ class make_chart:
         tmp = np.append(tmp, self.df_output.at["MEAN", k+"_"+ratio[0]] / self.df_output.at["MEAN", k+"_"+ratio[-1]])
       self.df_relative_ratio.loc[ratio] = tmp
     self.key = self.df_relative_ratio.sort_values(self.target_params, axis=1, ascending=False).columns
-    # self.output_data(self.df_relative_ratio.sort_values(self.target_params, axis=1, ascending=False).T, "./result_relative.xlsx")
-    self.output_data(self.df_relative_ratio.T, "./result_relative.xlsx")
+    self.output_data(self.df_relative_ratio.sort_values(self.target_params, axis=1, ascending=False).T, "./result_relative.xlsx")
+    # self.output_data(self.df_relative_ratio.T, "./result_relative.xlsx")
   
   def calc_standard_error(self):
     self.df_standard_error = pd.DataFrame(columns=self.key)
