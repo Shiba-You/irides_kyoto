@@ -6,3 +6,4 @@ japanize-matplotlib
 requests
 ReportLab
 pdfrw
+sklearn
