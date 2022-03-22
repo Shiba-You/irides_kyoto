@@ -55,6 +55,8 @@ class make_pca:
   def make_ticker(self, pca):
     plt.gca().get_xaxis().set_major_locator(ticker.MaxNLocator(integer=True))
     plt.plot([0] + list( np.cumsum(pca.explained_variance_ratio_)), "-o")
+    for k, v in enumerate([0] + list( np.cumsum(pca.explained_variance_ratio_))):
+      plt.text(k-0.5, v+0.02, k)
     plt.xlabel("Number of principal components")
     plt.ylabel("Cumulative contribution rate")
     plt.grid()
@@ -110,7 +112,7 @@ class make_pca:
     # self.output_to_sheet(df, sheet="寄与率")
 
     #! 累積寄与率
-    # self.make_ticker(pca)
+    self.make_ticker(pca)
 
     #! 固有値
     # df = pd.DataFrame(pca.explained_variance_, index=cols)
@@ -121,13 +123,11 @@ class make_pca:
     # self.output_to_sheet(df, sheet="固有ベクトル")
     
     #! 固有ベクトルの散布図
-    self.make_relations(pca, len(feature))
-
+    # self.make_relations(pca, len(feature))
 
 
   def main(self):
     self.init_data()                    #! data/arange から必要データを DataFrame に整形
-    # self.make_scatter()             #! 特徴量の数値分析 { output_flag: excel に出力するか否か}
     self.normalize_data()
     self.calc_pca()
 
@@ -148,3 +148,8 @@ if __name__ == "__main__":
 
 
 #%%
+
+l = [1] + [2, 3, 4]
+for i, x in enumerate(l):
+  print(i, x)
+# %%
