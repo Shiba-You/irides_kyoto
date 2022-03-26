@@ -16,6 +16,7 @@ import seaborn as sns
 from matplotlib.backends.backend_pdf import PdfPages
 import sklearn
 from sklearn.decomposition import PCA
+from adjustText import adjust_text
 
 class make_pca:
   def __init__(self, input_file_name, output_file_name, output_chart_path):
@@ -71,8 +72,10 @@ class make_pca:
         f, axs = plt.subplots(1, 2, figsize=(16, 8))
         plt.subplots_adjust(wspace=0.4, hspace=0.8, bottom=0.17, top=0.93)
         dx, dy = self.calc_lim(axs[i%2])
+      texts = []
       for x, y, idx, gender in zip(self.feature[:, pc_f], self.feature[:, pc_s], self.df.iloc[:, 0], self.df.iloc[:, 2]):
-        axs[i%2].text(x-dx, y+dy, str(idx)+"_"+gender, fontsize=5)
+        t = axs[i%2].text(x, y, str(idx)+"_"+gender)
+        texts.append(t)
       axs[i%2].scatter(feature_A[:, pc_f], feature_A[:, pc_s], alpha=0.8, s=10, c="red", label="A")
       axs[i%2].scatter(feature_B[:, pc_f], feature_B[:, pc_s], alpha=0.8, s=10, c="blue", label="B")
       axs[i%2].legend()
@@ -80,6 +83,7 @@ class make_pca:
       axs[i%2].set_xlabel("PC" + str(pc_f+1))
       axs[i%2].set_ylabel("PC" + str(pc_s+1))
       axs[i%2].axis('square')
+      adjust_text(texts, ax=axs[i%2], arrowprops=dict(arrowstyle='->', color='m'))
 
       i += 1
       if pc_f == self.f_len-2 and pc_s == self.f_len-1:
@@ -94,9 +98,7 @@ class make_pca:
     axes.get_xaxis().set_major_locator(ticker.MaxNLocator(integer=True))
     dx, dy = self.calc_lim(axes)
     plt.plot([0] + list( np.cumsum(pca.explained_variance_ratio_)), "-o")
-    component_num = self.df.iloc[:, 0].values
-    component_num = np.append(0, component_num)
-    for x, y in zip(component_num, [0]+list(np.cumsum(pca.explained_variance_ratio_))):
+    for x, y in zip(self.df.iloc[:, 0], list(np.cumsum(pca.explained_variance_ratio_))):
       plt.text(x-dx, y+dy, x)
     plt.xlabel("Number of principal components")
     plt.ylabel("Cumulative contribution rate")
@@ -117,13 +119,15 @@ class make_pca:
         i = 0
         f, axs = plt.subplots(1, 2, figsize=(20, 10))
         plt.subplots_adjust(wspace=0.4, hspace=0.8, bottom=0.17, top=0.93)
-      dx, dy = self.calc_lim(axs[i%2])
+      texts = []
       for x, y, name in zip(pca.components_[pc_f], pca.components_[pc_s], self.dfs.columns):
-        axs[i%2].text(x-dx, y+dy, name, fontsize=5)
-      axs[i%2].scatter(pca.components_[pc_f], pca.components_[pc_s], alpha=0.8, s=10)
+        t = axs[i%2].text(x, y, name)
+        texts.append(t)
+      axs[i%2].scatter(pca.components_[pc_f], pca.components_[pc_s], alpha=0.8, s=10, color="red")
       axs[i%2].grid()
       axs[i%2].set_xlabel("PC" + str(pc_f+1))
       axs[i%2].set_ylabel("PC" + str(pc_s+1))
+      adjust_text(texts, ax=axs[i%2], arrowprops=dict(arrowstyle='->', color='m'))
 
       i += 1
       if pc_f == self.f_len-2 and pc_s == self.f_len-1:
@@ -131,7 +135,7 @@ class make_pca:
         plt.clf()
     pdf.close()
   
-  def make_eigenvector_ticker(self, pca, lim=False):
+  def make_eigenvector_ticker(self, pca, n_components, lim=False):
     if lim:
       pdf = PdfPages(self.output_chart_path+"_固有ベクトルの累積寄与率（y軸固定）.pdf")
     else:
@@ -149,18 +153,21 @@ class make_pca:
       contribution_rate = [0]
       for idx, val in enumerate(pca.components_[:, feature_idx]):
         contribution_rate.append(contribution_rate[idx]+val**2)
-      axs[i%2].plot(contribution_rate, "-o")
+      contribution_rate.pop(0)
+      components_list = np.arange(n_components)+1
+      axs[i%2].plot(components_list, contribution_rate, "-o")
 
-      component_num = self.df.iloc[:, 0].values
-      component_num = np.append(0, component_num)
+      # component_num = self.df.iloc[:, 0].values
+      # component_num = np.append(0, component_num)
+      if lim:
+        axs[i%2].set_ylim(0, 1)
       dx, dy = self.calc_lim(axs[i%2])
-      for x, y in zip(component_num, contribution_rate):
+      # for x, y in zip(component_num, contribution_rate):
+      for x, y in zip(components_list, contribution_rate):
         axs[i%2].text(x-dx, y+dy, x)
       axs[i%2].set_xlabel("Number of principal components")
       axs[i%2].set_ylabel("Cumulative contribution rate of " + self.df.columns[feature_idx])
       axs[i%2].grid()
-      if lim:
-        axs[i%2].set_ylim(0, 0.2)
       i += 1
       if feature_idx == len(pca.components_[0])-1:
         pdf.savefig()
@@ -195,20 +202,24 @@ class make_pca:
     # df = pd.DataFrame(pca.components_, columns=self.dfs.columns, index=cols)
     # self.output_to_sheet(df, sheet="固有ベクトル")
 
-    # #! 散布図
+    # # ! 主成分散布図
     # self.make_scatter()
+
+    #! 固有ベクトルの寄与相関
+    self.make_relations(pca)
+
+    # n_components = 20
+    # pca = PCA(n_components=n_components)
+    # pca.fit(self.dfs)
 
     # #! 累積寄与率
     # self.make_ticker(pca)
-    
-    # #! 固有ベクトルの散布図
-    # self.make_relations(pca)
 
     # #! 固有ベクトルの累積寄与率
-    # self.make_eigenvector_ticker(pca)
+    # self.make_eigenvector_ticker(pca, n_components)
 
-    #! 固有ベクトルの累積寄与率（x軸固定）
-    self.make_eigenvector_ticker(pca, lim=True)
+    # #! 固有ベクトルの累積寄与率（x軸固定）
+    # self.make_eigenvector_ticker(pca, n_components, lim=True)
 
 
   def main(self):
@@ -235,4 +246,3 @@ if __name__ == "__main__":
 
 
 #%%
-
