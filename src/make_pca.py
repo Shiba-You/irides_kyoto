@@ -156,13 +156,9 @@ class make_pca:
       contribution_rate.pop(0)
       components_list = np.arange(n_components)+1
       axs[i%2].plot(components_list, contribution_rate, "-o")
-
-      # component_num = self.df.iloc[:, 0].values
-      # component_num = np.append(0, component_num)
       if lim:
         axs[i%2].set_ylim(0, 1)
       dx, dy = self.calc_lim(axs[i%2])
-      # for x, y in zip(component_num, contribution_rate):
       for x, y in zip(components_list, contribution_rate):
         axs[i%2].text(x-dx, y+dy, x)
       axs[i%2].set_xlabel("Number of principal components")
@@ -172,6 +168,30 @@ class make_pca:
       if feature_idx == len(pca.components_[0])-1:
         pdf.savefig()
         plt.clf()
+    pdf.close()
+
+  def make_histgran(self):
+    pdf = PdfPages(self.output_chart_path+"_ヒストグラム.pdf")
+    group = self.df.iloc[:, 1] == "A"
+    feature_A = self.feature[[group]]
+    feature_B = self.feature[[np.logical_not(group)]]
+    for i in range(self.f_len):
+      if i%2==0:
+        if i != 0:
+          pdf.savefig()
+          plt.clf()
+        i = 0
+        f, axs = plt.subplots(1, 2, figsize=(16, 8))
+        plt.subplots_adjust(wspace=0.4, hspace=0.8, bottom=0.17, top=0.93)
+      axs[i%2].hist(feature_A[:, i], alpha=0.5, label="A")
+      axs[i%2].hist(feature_B[:, i], alpha=0.5, label="B")
+      # x_lim = np.linspace(min(self.feature[:,i]), max(self.feature[:,i]), 10)
+      # axs[i%2].hist(feature_A[:, i], x_lim, alpha=0.5, label="A")
+      # axs[i%2].hist(feature_B[:, i], x_lim, alpha=0.5, label="B")
+      axs[i%2].grid()
+      axs[i%2].axis('square')
+    pdf.savefig()
+    plt.clf()
     pdf.close()
 
   def calc_pca(self):
@@ -205,8 +225,11 @@ class make_pca:
     # # ! 主成分散布図
     # self.make_scatter()
 
-    #! 固有ベクトルの寄与相関
-    self.make_relations(pca)
+    # #! 各群による pca ヒストグラム
+    self.make_histgran()
+
+    # #! 固有ベクトルの寄与相関
+    # self.make_relations(pca)
 
     # n_components = 20
     # pca = PCA(n_components=n_components)
