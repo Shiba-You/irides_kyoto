@@ -12,7 +12,6 @@ import matplotlib
 import japanize_matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
-from pyparsing import alphas
 import seaborn as sns
 from matplotlib.backends.backend_pdf import PdfPages
 import sklearn
@@ -196,10 +195,9 @@ class make_pca:
   def make_box_plot(self):
     pdf = PdfPages(self.output_chart_path+"_主成分箱ひげ図.pdf")
     sns.set(font='IPAexGothic', font_scale = 1)
-    sns.set_style("whitegrid")
     temp_df = pd.DataFrame(data=self.feature)
     temp_df["group"] = self.df["群"]
-    color_palette = {"A": "#FF8080", "B": "#8080FF"}
+    print(temp_df)
 
     for i in range(self.f_len):
       if i%2==0:
@@ -209,11 +207,10 @@ class make_pca:
         f, axs = plt.subplots(1, 2, figsize=(16, 8))
         plt.subplots_adjust(wspace=0.4, hspace=0.8, bottom=0.17, top=0.93)
       sns.boxplot(
-        data=temp_df,
-        x=temp_df["group"],
+        x="group",
         y=temp_df.iloc[:, i],
-        ax=axs[i%2],
-        palette=color_palette
+        data=temp_df,
+        ax=axs[i%2]
       )
       axs[i%2].set_title("PC{}".format(i+1))
     pdf.savefig()
@@ -255,7 +252,7 @@ class make_pca:
     # self.make_relations(pca)
 
     n_components = 31
-    pca = PCA(n_components=n_components)
+    pca = PCA(n_components=4)
     pca.fit(self.dfs)
     self.feature = pca.transform(self.dfs)         #? (n_samples, n_features) => (n_samples, n_components): 各サンプルがそれぞれの主成分をどれだけ有しているかを分布する
     self.f_len = len(self.feature[0])
