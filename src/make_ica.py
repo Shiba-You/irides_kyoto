@@ -78,18 +78,32 @@ class make_ica:
     plt.clf()
     pdf.close()
   
-  def arange_pca_and_ica(self, methods, startAt, endAt):
-    df = pd.DataFrame({"component": "PC{}".format(startAt+1), "value": self.feature[:,startAt], "group": self.df["群"]})
-    for i in range(startAt+1, endAt):
-      df_pc = pd.DataFrame({"component": "PC{}".format(i+1), "value": self.feature[:,i], "group": self.df["群"]})
-      df = pd.concat([df, df_pc])
-    for i in range(startAt, endAt):
-      df_ic = pd.DataFrame({"component": "IC{}".format(i+1), "value": self.X_transformed[:,i], "group": self.df["群"]})
-      df = pd.concat([df, df_ic])
+  def arange_pca_and_ica(self, method, startAt, endAt):
+    if method == "PC":
+      df = pd.DataFrame({"component": "PC{}".format(startAt+1), "value": self.feature[:,startAt], "group": self.df["群"]})
+      for i in range(startAt+1, endAt):
+        df_pc = pd.DataFrame({"component": "PC{}".format(i+1), "value": self.feature[:,i], "group": self.df["群"]})
+        df = pd.concat([df, df_pc])
+    elif method == "IC":
+      df = pd.DataFrame({"component": "IC{}".format(startAt+1), "value": self.X_transformed[:,startAt], "group": self.df["群"]})
+      for i in range(startAt, endAt):
+        df_ic = pd.DataFrame({"component": "IC{}".format(i+1), "value": self.X_transformed[:,i], "group": self.df["群"]})
+        df = pd.concat([df, df_ic])
+    elif method == "ALL":
+      df = pd.DataFrame({"component": "PC{}".format(startAt+1), "value": self.feature[:,startAt], "group": self.df["群"]})
+      for i in range(startAt+1, endAt):
+        df_pc = pd.DataFrame({"component": "PC{}".format(i+1), "value": self.feature[:,i], "group": self.df["群"]})
+        df = pd.concat([df, df_pc])
+      for i in range(startAt, endAt):
+        df_ic = pd.DataFrame({"component": "IC{}".format(i+1), "value": self.X_transformed[:,i], "group": self.df["群"]})
+        df = pd.concat([df, df_ic])
     return df
   
-  def make_box_plot_pca_and_ica(self):
-    pdf = PdfPages(self.output_chart_path+"_主成分+独立成分箱ひげ図.pdf")
+  def make_box_plot_pca_and_ica(self, wide=False):
+    if wide:
+      pdf = PdfPages(self.output_chart_path+"_主成分+独立成分箱ひげ図（拡大）.pdf")
+    else:
+      pdf = PdfPages(self.output_chart_path+"_主成分+独立成分箱ひげ図.pdf")
     sns.set(font='IPAexGothic', font_scale = 1)
     sns.set_style("whitegrid")
     color_palette = {"A": "#FF8080", "B": "#8080FF"}
@@ -98,9 +112,9 @@ class make_ica:
         if i != 0:
           pdf.savefig()
           plt.clf()
-        f, axs = plt.subplots(1, 2, figsize=(16, 8))
+        f, axs = plt.subplots(2, 1, figsize=(16, 10))
         plt.subplots_adjust(wspace=0.4, hspace=0.8, bottom=0.17, top=0.93)
-      temp_df = self.arange_pca_and_ica(["PC"] if i == 0 else ["IC"], 0, 10)
+      temp_df = self.arange_pca_and_ica("PC" if i == 0 else "IC", 0, 10)
       sns.boxplot(
         x="component",
         y="value",
@@ -109,21 +123,12 @@ class make_ica:
         ax=axs[i%2],
         palette=color_palette
       )
+      axs[i%2].legend(loc='upper right')
+      if wide:
+        lim_range = (-5,5) if i == 0 else (-.5,.5)
+        axs[i%2].set(ylim=(lim_range))
     pdf.savefig()
     plt.clf()
-    # temp_df = self.arange_pca_and_ica(0, 10)
-    # f, axs = plt.subplots(1, 1, figsize=(32, 26))
-    # plt.subplots_adjust(wspace=0.4, hspace=0.8, bottom=0.17, top=0.93)
-    # sns.boxplot(
-    #   x="component",
-    #   y="value",
-    #   hue="group",
-    #   data=temp_df,
-    #   ax=axs,
-    #   palette=color_palette
-    # )
-    # pdf.savefig()
-    # plt.clf()
     pdf.close()
 
   def calc_pca(self):
@@ -145,8 +150,11 @@ class make_ica:
     # #! ica のみ箱ひげ図
     # self.make_box_plot()
 
-    #! pca + ica 箱ひげ図
-    self.make_box_plot_pca_and_ica()
+    # #! pca + ica 箱ひげ図
+    # self.make_box_plot_pca_and_ica()
+
+    #! pca + ica 箱ひげ図（拡大）
+    self.make_box_plot_pca_and_ica(True)
 
 
   def main(self):

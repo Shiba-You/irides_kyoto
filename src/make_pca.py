@@ -226,27 +226,27 @@ class make_pca:
     n_features    : 特徴量数
     n_components  : 主成分数
     '''
-    # pca = PCA(n_components=4)
-    # pca.fit(self.dfs)
-    # self.feature = pca.transform(self.dfs)         #? (n_samples, n_features) => (n_samples, n_components): 各サンプルがそれぞれの主成分をどれだけ有しているかを分布する
-    # self.f_len = len(self.feature[0])
-    # cols = ["PC{}".format(x + 1) for x in range(self.f_len)]
+    pca = PCA(n_components=10)
+    pca.fit(self.dfs)
+    self.feature = pca.transform(self.dfs)         #? (n_samples, n_features) => (n_samples, n_components): 各サンプルがそれぞれの主成分をどれだけ有しているかを分布する
+    self.f_len = len(self.feature[0])
+    cols = ["PC{}".format(x + 1) for x in range(self.f_len)]
 
-    # # ! 主成分得点
-    # df = pd.DataFrame(self.feature, columns=cols)
-    # self.output_to_sheet(df, sheet="主成分得点")
+    # ! 主成分得点
+    df = pd.DataFrame(self.feature, columns=cols)
+    self.output_to_sheet(df, sheet="主成分得点")
 
-    # #! 寄与率
-    # df = pd.DataFrame(pca.explained_variance_ratio_, index=cols)
-    # self.output_to_sheet(df, sheet="寄与率")
+    #! 寄与率
+    df = pd.DataFrame(pca.explained_variance_ratio_, index=cols)
+    self.output_to_sheet(df, sheet="寄与率")
 
-    # #! 固有値
-    # df = pd.DataFrame(pca.explained_variance_, index=cols)
-    # self.output_to_sheet(df, sheet="固有値")
+    #! 固有値
+    df = pd.DataFrame(pca.explained_variance_, index=cols)
+    self.output_to_sheet(df, sheet="固有値")
 
-    # #! 固有ベクトル
-    # df = pd.DataFrame(pca.components_, columns=self.dfs.columns, index=cols)
-    # self.output_to_sheet(df, sheet="固有ベクトル")
+    #! 固有ベクトル
+    df = pd.DataFrame(pca.components_, columns=self.dfs.columns, index=cols)
+    self.output_to_sheet(df, sheet="固有ベクトル")
 
     # # ! 主成分散布図
     # self.make_scatter()
@@ -254,11 +254,11 @@ class make_pca:
     # #! 固有ベクトルの寄与相関
     # self.make_relations(pca)
 
-    n_components = 31
-    pca = PCA(n_components=n_components)
-    pca.fit(self.dfs)
-    self.feature = pca.transform(self.dfs)         #? (n_samples, n_features) => (n_samples, n_components): 各サンプルがそれぞれの主成分をどれだけ有しているかを分布する
-    self.f_len = len(self.feature[0])
+    # n_components = 31
+    # pca = PCA(n_components=n_components)
+    # pca.fit(self.dfs)
+    # self.feature = pca.transform(self.dfs)         #? (n_samples, n_features) => (n_samples, n_components): 各サンプルがそれぞれの主成分をどれだけ有しているかを分布する
+    # self.f_len = len(self.feature[0])
 
     # #! 累積寄与率
     # self.make_ticker(pca)
@@ -272,8 +272,8 @@ class make_pca:
     # #! 各群による pca ヒストグラム
     # self.make_histgran()
 
-    #! 箱ひげ図
-    self.make_box_plot()
+    # #! 箱ひげ図
+    # self.make_box_plot()
 
 
   def main(self):
