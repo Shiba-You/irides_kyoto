@@ -18,6 +18,8 @@ from matplotlib.backends.backend_pdf import PdfPages
 import sklearn
 from sklearn.decomposition import FastICA
 from sklearn.decomposition import PCA
+import openpyxl
+import glob
 
 class make_ica:
   def __init__(self, input_file_name, output_file_name, output_chart_path):
@@ -48,9 +50,18 @@ class make_ica:
     for k in self.key:
       self.dfs[k] = self.dfs[k].fillna(self.dfs[k].mean())
   
-  def output_to_sheet(self, df, sheet):
+  def output_to_sheet(self, df, sheet_name):
+    if not os.path.isfile(self.output_file_name):
+      wb = openpyxl.Workbook()
+      sheet = wb.active
+      # sheet.title = '_'
+      wb.save(self.output_file_name)
+      glob.glob("*.xlsx")
     with pd.ExcelWriter(self.output_file_name, mode='a') as writer:
-      df.to_excel(writer, sheet_name=sheet)
+      print("df    : ", df.shape)
+      print("sheet : ", sheet_name)
+      print("writer: ", writer)
+      df.to_excel(writer, sheet_name=sheet_name)
   
   def make_box_plot(self):
     pdf = PdfPages(self.output_chart_path+"_独立成分箱ひげ図.pdf")
@@ -130,6 +141,12 @@ class make_ica:
     pdf.savefig()
     plt.clf()
     pdf.close()
+  
+  def make_var_mean(self):
+    df = pd.DataFrame(self.feature, columns=["PC{}".format(i+1) for i in range(10)])
+    group = self.df["群"]
+    df = df.join(group)
+    return 
 
   def calc_pca(self):
     '''
@@ -138,12 +155,12 @@ class make_ica:
     n_components  : 主成分数
     '''
     n_components = 10
-    ICA = FastICA(n_components=n_components, random_state=0)
-    self.X_transformed = ICA.fit_transform(self.dfs)
+    ica = FastICA(n_components=n_components, random_state=0)
+    self.X_transformed = ica.fit_transform(self.dfs)  #? (n_samples, n_features) => (n_samples, n_components): 各サンプルがそれぞれの主成分をどれだけ有しているかを分布する
     self.f_len = len(self.X_transformed[0])
     pca = PCA(n_components=n_components)
     pca.fit(self.dfs)
-    self.feature = pca.transform(self.dfs)         #? (n_samples, n_features) => (n_samples, n_components): 各サンプルがそれぞれの主成分をどれだけ有しているかを分布する
+    self.feature = pca.transform(self.dfs)            #? (n_samples, n_features) => (n_samples, n_components): 各サンプルがそれぞれの主成分をどれだけ有しているかを分布する
     self.f_len = n_components
     # self.f_len = len(self.feature[0])
 
@@ -154,7 +171,18 @@ class make_ica:
     # self.make_box_plot_pca_and_ica()
 
     #! pca + ica 箱ひげ図（拡大）
-    self.make_box_plot_pca_and_ica(True)
+    # self.make_box_plot_pca_and_ica(True)
+
+    #! pca + ica 分散・平均
+    # self.make_var_mean()
+    # df = pd.DataFrame(pca.explained_variance_, index=cols)
+    # self.output_to_sheet(df, sheet="固有値")
+
+    #! ica + pca の固有ベクトル
+    df = pd.DataFrame(pca.components_, columns=self.dfs.columns, index=["PC{}".format(i+1) for i in range(10)])
+    self.output_to_sheet(df.T, sheet="PCA_固有ベクトル")
+    df = pd.DataFrame(ica.components_, columns=self.dfs.columns, index=["IC{}".format(i+1) for i in range(10)])
+    self.output_to_sheet(df.T, sheet="ICA_固有ベクトル")
 
 
   def main(self):
