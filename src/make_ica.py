@@ -4,6 +4,7 @@ python @ 3.10.2
 '''
 import itertools
 import datetime
+from tokenize import group
 import pandas as pd
 from pandas import plotting 
 import numpy as np
@@ -20,6 +21,7 @@ from sklearn.decomposition import FastICA
 from sklearn.decomposition import PCA
 import openpyxl
 import glob
+from adjustText import adjust_text
 
 class make_ica:
   def __init__(self, input_file_name, output_file_name, output_chart_path):
@@ -32,6 +34,8 @@ class make_ica:
     self.feature = []
     self.f_len = 0
     self.key = []
+    self.target_df = pd.DataFrame()
+    self.target_components = ["PC2", "PC4", "PC7", "IC4", "IC8"]
 
   def init_data(self):
     if os.path.exists(self.input_file_name):
@@ -142,11 +146,91 @@ class make_ica:
     plt.clf()
     pdf.close()
   
-  def make_var_mean(self):
-    df = pd.DataFrame(self.feature, columns=["PC{}".format(i+1) for i in range(10)])
-    group = self.df["群"]
-    df = df.join(group)
-    return 
+  def make_scatter(self):
+    pdf = PdfPages(self.output_chart_path+"_主成分散布図.pdf")
+    i = 0
+    feature_A = self.target_df.query('group == "A"')
+    feature_A_M = feature_A.query('gender == "男"')
+    feature_A_W = feature_A.query('gender == "女"')
+    feature_B = self.target_df.query('group == "B"')
+    feature_B_M = feature_B.query('gender == "男"')
+    feature_B_W = feature_B.query('gender == "女"')
+    for c_f, c_s in itertools.combinations(self.target_components, 2):
+      if i%2==0:
+        if i != 0:
+          pdf.savefig()
+          plt.clf()
+        i = 0
+        f, axs = plt.subplots(1, 2, figsize=(16, 8))
+        plt.subplots_adjust(wspace=0.4, hspace=0.8, bottom=0.17, top=0.93)
+      c_f_max, c_f_min, c_f_a_ave, c_f_b_ave, dx = self.target_df[c_f].max(), self.target_df[c_f].min(), feature_A[c_f].mean(), feature_B[c_f].mean(), (self.target_df[c_f].max() - self.target_df[c_f].min())/100*5
+      c_s_max, c_s_min, c_s_a_ave, c_s_b_ave, dy = self.target_df[c_s].max(), self.target_df[c_s].min(), feature_A[c_s].mean(), feature_B[c_s].mean(), (self.target_df[c_s].max() - self.target_df[c_s].min())/100*5
+      axs[i%2].scatter(feature_A_M[c_f].values, feature_A_M[c_s].values, alpha=0.8, s=100, c="red", label="A-male", marker="o")
+      axs[i%2].scatter(feature_A_W[c_f].values, feature_A_W[c_s].values, alpha=0.8, s=100, c="red", label="A-female", marker="^")
+      axs[i%2].scatter(feature_B_M[c_f].values, feature_B_M[c_s].values, alpha=0.8, s=100, c="blue", label="B-male", marker="o")
+      axs[i%2].scatter(feature_B_W[c_f].values, feature_B_W[c_s].values, alpha=0.8, s=100, c="blue", label="B-female", marker="^")
+      axs[i%2].vlines(c_f_a_ave, c_s_min, c_s_max, "red", linestyles='dashed', label='A-Average')
+      axs[i%2].vlines(c_f_b_ave, c_s_min, c_s_max, "blue", linestyles='dashed', label='B-Average')
+      axs[i%2].hlines(c_s_a_ave, c_f_min, c_f_max, "red", linestyles='dashed')
+      axs[i%2].hlines(c_s_b_ave, c_f_min, c_f_max, "blue", linestyles='dashed')
+      plt.xlim(c_f_min-dx, c_f_max+dx)
+      plt.ylim(c_s_min-dy, c_s_max+dy)
+      axs[i%2].legend(fontsize="x-large")
+      axs[i%2].set_xlabel(c_f)
+      axs[i%2].set_ylabel(c_s)
+
+      i += 1
+    pdf.savefig()
+    plt.clf()
+    pdf.close()
+  
+  def make_histgran(self):
+    pdf = PdfPages(self.output_chart_path+"_ヒストグラム.pdf")
+    feature_A = self.target_df.query('group == "A"')
+    feature_B = self.target_df.query('group == "B"')
+    i = 0
+    for c in self.target_components:
+      if i%2==0:
+        if i != 0:
+          pdf.savefig()
+          plt.clf()
+        f, axs = plt.subplots(1, 2, figsize=(16, 8))
+        plt.subplots_adjust(wspace=0.4, hspace=0.8, bottom=0.17, top=0.93)
+      x_range = (min(self.target_df[c]), max(self.target_df[c]))
+      axs[i%2].hist(feature_A[c].values, range=x_range, bins=10, alpha=0.5, color="red", ec="darkred", label="A")
+      axs[i%2].hist(feature_B[c].values, range=x_range, bins=10, alpha=0.5, color="blue", ec="darkblue", label="B")
+      axs[i%2].grid()
+      axs[i%2].set_title(c)
+      axs[i%2].legend()
+      i += 1
+    pdf.savefig()
+    plt.clf()
+    pdf.close()
+
+  def make_relations(self):
+    pdf = PdfPages(self.output_chart_path+"_寄与度相関.pdf")
+    i = 0
+    for c_f, c_s in itertools.combinations(self.target_components, 2):
+      if i%2==0:
+        if i != 0:
+          pdf.savefig()
+          plt.clf()
+        i = 0
+        f, axs = plt.subplots(1, 2, figsize=(20, 10))
+        plt.subplots_adjust(wspace=0.4, hspace=0.8, bottom=0.17, top=0.93)
+      texts = []
+      for x, y, name in zip(self.target_df[c_f].values, self.target_df[c_s].values, self.dfs.columns):
+        t = axs[i%2].text(x, y, name)
+        texts.append(t)
+      axs[i%2].scatter(self.target_df[c_f].values, self.target_df[c_s].values, alpha=0.8, s=10, color="red")
+      axs[i%2].grid()
+      axs[i%2].set_xlabel(c_f)
+      axs[i%2].set_ylabel(c_s)
+      adjust_text(texts, ax=axs[i%2], arrowprops=dict(arrowstyle='->', color='m'))
+      i += 1
+    pdf.savefig()
+    plt.clf()
+    pdf.close()
 
   def calc_pca(self):
     '''
@@ -162,28 +246,40 @@ class make_ica:
     pca.fit(self.dfs)
     self.feature = pca.transform(self.dfs)            #? (n_samples, n_features) => (n_samples, n_components): 各サンプルがそれぞれの主成分をどれだけ有しているかを分布する
     self.f_len = n_components
-    # self.f_len = len(self.feature[0])
 
-    # #! ica のみ箱ひげ図
-    # self.make_box_plot()
+    #! ica のみ箱ひげ図
+    self.make_box_plot()
 
-    # #! pca + ica 箱ひげ図
-    # self.make_box_plot_pca_and_ica()
+    #! pca + ica 箱ひげ図
+    self.make_box_plot_pca_and_ica()
 
     #! pca + ica 箱ひげ図（拡大）
-    # self.make_box_plot_pca_and_ica(True)
-
-    #! pca + ica 分散・平均
-    # self.make_var_mean()
-    # df = pd.DataFrame(pca.explained_variance_, index=cols)
-    # self.output_to_sheet(df, sheet="固有値")
+    self.make_box_plot_pca_and_ica(True)
 
     #! ica + pca の固有ベクトル
     df = pd.DataFrame(pca.components_, columns=self.dfs.columns, index=["PC{}".format(i+1) for i in range(10)])
-    self.output_to_sheet(df.T, sheet="PCA_固有ベクトル")
+    self.output_to_sheet(df.T, sheet_name="PCA_固有ベクトル")
     df = pd.DataFrame(ica.components_, columns=self.dfs.columns, index=["IC{}".format(i+1) for i in range(10)])
-    self.output_to_sheet(df.T, sheet="ICA_固有ベクトル")
+    self.output_to_sheet(df.T, sheet_name="ICA_固有ベクトル")
 
+
+    #! pca + ica に 群と性別を追加
+    target = np.stack([self.feature[:,1], self.feature[:,3], self.feature[:,6], self.X_transformed[:,3], self.X_transformed[:,7]]).T
+    self.target_df = pd.DataFrame(target, columns=self.target_components)
+    group = pd.Series(self.df["群"], name='group')
+    gender = pd.Series(self.df["性別"], name='gender')
+    self.target_df = pd.concat([self.target_df, group, gender], axis=1)
+
+    #! 主成分散布図
+    self.make_scatter()
+
+    #! ヒストグラム
+    self.make_histgran()
+
+    #! 寄与度相関
+    target_c = np.stack([pca.components_[1], pca.components_[3], pca.components_[6], ica.components_[3], ica.components_[7]]).T
+    self.target_df = pd.DataFrame(target_c, columns=self.target_components)
+    self.make_relations()
 
   def main(self):
     self.init_data()                    #! data/arange から必要データを DataFrame に整形
