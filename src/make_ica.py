@@ -30,12 +30,14 @@ class make_ica:
     self.output_chart_path = output_chart_path
     self.df = pd.DataFrame()
     self.dfs = pd.DataFrame()
+    self.pca_components = []
+    self.ica_components = []
     self.X_transformed = []
     self.feature = []
     self.f_len = 0
     self.key = []
     self.target_df = pd.DataFrame()
-    self.target_components = ["PC2", "PC4", "PC6", "PC7", "IC4", "IC7"]
+    self.target_components = ["PC2", "PC4", "PC6", "PC7", "IC1", "IC4", "IC7"]
 
   def init_data(self):
     if os.path.exists(self.input_file_name):
@@ -245,14 +247,13 @@ class make_ica:
     ica = FastICA(n_components=n_components, random_state=0)
     self.X_transformed = ica.fit_transform(self.dfs)  #? (n_samples, n_features) => (n_samples, n_components): 各サンプルがそれぞれの主成分をどれだけ有しているかを分布する
     self.f_len = len(self.X_transformed[0])
+    self.ica_components = ica.components_
     pca = PCA(n_components=n_components)
     pca.fit(self.dfs)
     self.feature = pca.transform(self.dfs)            #? (n_samples, n_features) => (n_samples, n_components): 各サンプルがそれぞれの主成分をどれだけ有しているかを分布する
     self.f_len = n_components
+    self.pca_components = pca.components_
 
-    print(pca.components_.shape)
-    print(pca.components_[0].shape)
-    print(self.feature.shape)
     #! A群 > B群となるように，固有ベクトルの正負を変更
     for i in range(self.f_len):
       A_pca_mean = 0
@@ -267,10 +268,10 @@ class make_ica:
           B_pca_mean += self.feature[j, i]
           B_ica_mean += self.X_transformed[j, i]
       if A_pca_mean / self.df["群"].value_counts()["A"] < B_pca_mean / self.df["群"].value_counts()["B"]:
-        pca.components_[i].shape *= -1
+        self.pca_components[i] *= -1
         self.feature[:, i] *= -1
       if A_ica_mean / self.df["群"].value_counts()["A"] < B_ica_mean / self.df["群"].value_counts()["B"]:
-        ica.components_[i].shape *= -1
+        self.ica_components[i] *= -1
         self.X_transformed[:, i] *= -1
 
     # #! ica のみ箱ひげ図
@@ -283,28 +284,28 @@ class make_ica:
     # self.make_box_plot_pca_and_ica(True)
 
     # #! ica + pca の固有ベクトル
-    # df = pd.DataFrame(pca.components_, columns=self.dfs.columns, index=["PC{}".format(i+1) for i in range(10)])
+    # df = pd.DataFrame(self.pca_components, columns=self.dfs.columns, index=["PC{}".format(i+1) for i in range(10)])
     # self.output_to_sheet(df.T, sheet_name="PCA_固有ベクトル")
-    # df = pd.DataFrame(ica.components_, columns=self.dfs.columns, index=["IC{}".format(i+1) for i in range(10)])
+    # df = pd.DataFrame(self.ica_components, columns=self.dfs.columns, index=["IC{}".format(i+1) for i in range(10)])
     # self.output_to_sheet(df.T, sheet_name="ICA_固有ベクトル")
 
     # #! pca + ica に 群と性別を追加
-    # target = np.stack([self.feature[:,1], self.feature[:,3], self.feature[:,5], self.feature[:,6], self.X_transformed[:,3], self.X_transformed[:,6]]).T
-    # self.target_df = pd.DataFrame(target, columns=self.target_components)
-    # group = pd.Series(self.df["群"], name='group')
-    # gender = pd.Series(self.df["性別"], name='gender')
-    # self.target_df = pd.concat([self.target_df, group, gender], axis=1)
+    target = np.stack([self.feature[:,1], self.feature[:,3], self.feature[:,5], self.feature[:,6], self.X_transformed[:,0], self.X_transformed[:,3], self.X_transformed[:,6]]).T
+    self.target_df = pd.DataFrame(target, columns=self.target_components)
+    group = pd.Series(self.df["群"], name='group')
+    gender = pd.Series(self.df["性別"], name='gender')
+    self.target_df = pd.concat([self.target_df, group, gender], axis=1)
 
     # #! 主成分散布図
-    # self.make_scatter()
+    self.make_scatter()
 
     # #! ヒストグラム
-    # self.make_histgran()
+    self.make_histgran()
 
     # #! 寄与度相関
-    # target_c = np.stack([pca.components_[1], pca.components_[3], pca.components_[5], pca.components_[6], ica.components_[3], ica.components_[6]]).T
-    # self.target_df = pd.DataFrame(target_c, columns=self.target_components)
-    # self.make_relations()
+    target_c = np.stack([pca.components_[1], pca.components_[3], pca.components_[5], pca.components_[6], ica.components_[0], ica.components_[3], ica.components_[6]]).T
+    self.target_df = pd.DataFrame(target_c, columns=self.target_components)
+    self.make_relations()
 
   def main(self):
     self.init_data()                    #! data/arange から必要データを DataFrame に整形
