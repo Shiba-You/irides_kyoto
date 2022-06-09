@@ -35,7 +35,7 @@ class make_ica:
     self.f_len = 0
     self.key = []
     self.target_df = pd.DataFrame()
-    self.target_components = ["PC2", "PC4", "PC7", "IC4", "IC8"]
+    self.target_components = ["PC2", "PC4", "PC6", "PC7", "IC4", "IC7"]
 
   def init_data(self):
     if os.path.exists(self.input_file_name):
@@ -61,11 +61,14 @@ class make_ica:
       # sheet.title = '_'
       wb.save(self.output_file_name)
       glob.glob("*.xlsx")
-    with pd.ExcelWriter(self.output_file_name, mode='a') as writer:
-      print("df    : ", df.shape)
-      print("sheet : ", sheet_name)
-      print("writer: ", writer)
-      df.to_excel(writer, sheet_name=sheet_name)
+    try:
+      with pd.ExcelWriter(self.output_file_name, mode='a') as writer:
+        print("df    : ", df.shape)
+        print("sheet : ", sheet_name)
+        print("writer: ", writer)
+        df.to_excel(writer, sheet_name=sheet_name)
+    except:
+      print("既に作成済みです．")
   
   def make_box_plot(self):
     pdf = PdfPages(self.output_chart_path+"_独立成分箱ひげ図.pdf")
@@ -247,39 +250,61 @@ class make_ica:
     self.feature = pca.transform(self.dfs)            #? (n_samples, n_features) => (n_samples, n_components): 各サンプルがそれぞれの主成分をどれだけ有しているかを分布する
     self.f_len = n_components
 
-    #! ica のみ箱ひげ図
-    self.make_box_plot()
+    print(pca.components_.shape)
+    print(pca.components_[0].shape)
+    print(self.feature.shape)
+    #! A群 > B群となるように，固有ベクトルの正負を変更
+    for i in range(self.f_len):
+      A_pca_mean = 0
+      A_ica_mean = 0
+      B_pca_mean = 0
+      B_ica_mean = 0
+      for j, group in enumerate(self.df["群"]):
+        if group == "A":
+          A_pca_mean += self.feature[j, i]
+          A_ica_mean += self.X_transformed[j, i]
+        elif group == "B":
+          B_pca_mean += self.feature[j, i]
+          B_ica_mean += self.X_transformed[j, i]
+      if A_pca_mean / self.df["群"].value_counts()["A"] < B_pca_mean / self.df["群"].value_counts()["B"]:
+        pca.components_[i].shape *= -1
+        self.feature[:, i] *= -1
+      if A_ica_mean / self.df["群"].value_counts()["A"] < B_ica_mean / self.df["群"].value_counts()["B"]:
+        ica.components_[i].shape *= -1
+        self.X_transformed[:, i] *= -1
 
-    #! pca + ica 箱ひげ図
-    self.make_box_plot_pca_and_ica()
+    # #! ica のみ箱ひげ図
+    # self.make_box_plot()
 
-    #! pca + ica 箱ひげ図（拡大）
-    self.make_box_plot_pca_and_ica(True)
+    # #! pca + ica 箱ひげ図
+    # self.make_box_plot_pca_and_ica()
 
-    #! ica + pca の固有ベクトル
-    df = pd.DataFrame(pca.components_, columns=self.dfs.columns, index=["PC{}".format(i+1) for i in range(10)])
-    self.output_to_sheet(df.T, sheet_name="PCA_固有ベクトル")
-    df = pd.DataFrame(ica.components_, columns=self.dfs.columns, index=["IC{}".format(i+1) for i in range(10)])
-    self.output_to_sheet(df.T, sheet_name="ICA_固有ベクトル")
+    # #! pca + ica 箱ひげ図（拡大）
+    # self.make_box_plot_pca_and_ica(True)
 
+    # #! ica + pca の固有ベクトル
+    # df = pd.DataFrame(pca.components_, columns=self.dfs.columns, index=["PC{}".format(i+1) for i in range(10)])
+    # self.output_to_sheet(df.T, sheet_name="PCA_固有ベクトル")
+    # df = pd.DataFrame(ica.components_, columns=self.dfs.columns, index=["IC{}".format(i+1) for i in range(10)])
+    # self.output_to_sheet(df.T, sheet_name="ICA_固有ベクトル")
 
-    #! pca + ica に 群と性別を追加
-    target = np.stack([self.feature[:,1], self.feature[:,3], self.feature[:,6], self.X_transformed[:,3], self.X_transformed[:,7]]).T
-    self.target_df = pd.DataFrame(target, columns=self.target_components)
-    group = pd.Series(self.df["群"], name='group')
-    gender = pd.Series(self.df["性別"], name='gender')
-    self.target_df = pd.concat([self.target_df, group, gender], axis=1)
+    # #! pca + ica に 群と性別を追加
+    # target = np.stack([self.feature[:,1], self.feature[:,3], self.feature[:,5], self.feature[:,6], self.X_transformed[:,3], self.X_transformed[:,6]]).T
+    # self.target_df = pd.DataFrame(target, columns=self.target_components)
+    # group = pd.Series(self.df["群"], name='group')
+    # gender = pd.Series(self.df["性別"], name='gender')
+    # self.target_df = pd.concat([self.target_df, group, gender], axis=1)
 
-    #! 主成分散布図
-    self.make_scatter()
+    # #! 主成分散布図
+    # self.make_scatter()
 
-    #! ヒストグラム
-    self.make_histgran()
+    # #! ヒストグラム
+    # self.make_histgran()
 
-    #! 寄与度相関
-    target_c = np.stack([pca.components_[1], pca.components_[3], pca.components_[6], ica.components_[3], ica.components_[7]]).T
-    self.target_df = pd.DataFrame(target_c, columns=self.target_components)
-    self.make_relations()
+    # #! 寄与度相関
+    # target_c = np.stack([pca.components_[1], pca.components_[3], pca.components_[5], pca.components_[6], ica.components_[3], ica.components_[6]]).T
+    # self.target_df = pd.DataFrame(target_c, columns=self.target_components)
+    # self.make_relations()
 
   def main(self):
     self.init_data()                    #! data/arange から必要データを DataFrame に整形
@@ -291,7 +316,7 @@ if __name__ == "__main__":
   today = str(datetime.date.today())
   date_format = today[2:4] + today[5:7] + today[8:10]
   #? >>>> ここは変更する >>>>
-  input_file_name = "220325 調査報告書+IDs_A先.xlsx"
+  input_file_name = "220606 調査報告書+IDs_A先.xlsx"
   output_file_name = date_format + "_集計.xlsx"
   output_chart_name = date_format
   dir_names = ["04_pickup_params"]
@@ -304,7 +329,4 @@ if __name__ == "__main__":
   mi.main()
 
 
-#%%
-for i in range(5):
-  print("PC" if i%2 == 0 else "IC")
 # %%

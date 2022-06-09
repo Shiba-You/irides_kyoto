@@ -286,10 +286,10 @@ if __name__ == "__main__":
   today = str(datetime.date.today())
   date_format = today[2:4] + today[5:7] + today[8:10]
   #? >>>> ここは変更する >>>>
-  input_file_name = "220325 調査報告書+IDs_A先.xlsx"
+  input_file_name = "220511 調査報告書+IDs_A先.xlsx"
   output_file_name = date_format + "_集計.xlsx"
   output_chart_name = date_format
-  dir_names = ["04_pickup_params"]
+  dir_names = ["05_2d-3d_params"]
   this_dir = 0                                    #! {0: 04_pickup_params}
   #? <<<< ここは変更する <<<<
   input_file_path = os.path.join("../data/arange", dir_names[this_dir], input_file_name)
