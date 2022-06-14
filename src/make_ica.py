@@ -51,6 +51,13 @@ class make_ica:
       exit()
     return
   
+  def calc_lim(self, axs):
+    min_x, max_x = axs.get_xlim()
+    min_y, max_y = axs.get_ylim()
+    dx = (max_x - min_x) / 100 * 2
+    dy = (max_y - min_y) / 100 * 2
+    return dx, dy
+  
   def normalize_data(self):
     self.dfs = self.df.iloc[:, 3:].apply(lambda x: (x-x.mean())/x.std(), axis=0)
     for k in self.key:
@@ -71,6 +78,64 @@ class make_ica:
         df.to_excel(writer, sheet_name=sheet_name)
     except:
       print("既に作成済みです．")
+  
+  def make_ticker(self, pca):
+    pdf = PdfPages(self.output_chart_path+"_累積寄与率.pdf")
+    plt.figure(figsize=(20,10))
+    axes = plt.gca()
+    axes.get_xaxis().set_major_locator(ticker.MaxNLocator(integer=True))
+    dx, dy = self.calc_lim(axes)
+    plt.plot([0] + list( np.cumsum(pca.explained_variance_ratio_)), "-o")
+    for x, y in zip(self.df.iloc[:, 0], list(np.cumsum(pca.explained_variance_ratio_))):
+      if x <= 10:
+        print(f"No. : {x, y}")
+        print(f"x: {x-dx}")
+        print(f"y: {y-dy}")
+      plt.text(x-dx, y+dy, x)
+    plt.xlabel("Number of principal components")
+    plt.ylabel("Cumulative contribution rate")
+    plt.grid()
+    plt.hlines(0.9, -1, self.f_len+1, "red", linestyles='dashed')
+    plt.xlim(-dx*30, self.f_len+dx*30)
+    plt.ylim(-dy*3, 1.+dy*3)
+    pdf.savefig()
+    plt.clf()
+    pdf.close()
+  
+  def make_eigenvector_ticker(self, pca, n_components, lim=False):
+    if lim:
+      pdf = PdfPages(self.output_chart_path+"_固有ベクトルの累積寄与率（y軸固定）.pdf")
+    else:
+      pdf = PdfPages(self.output_chart_path+"_固有ベクトルの累積寄与率.pdf")
+    i = 0
+    for feature_idx in range(len(pca.components_[0])):
+      if i%2==0:
+        if i != 0:
+          pdf.savefig()
+          plt.clf()
+        i = 0
+        f, axs = plt.subplots(1, 2, figsize=(20, 10))
+        plt.subplots_adjust(wspace=0.4, hspace=0.8, bottom=0.17, top=0.93)
+
+      contribution_rate = [0]
+      for idx, val in enumerate(pca.components_[:, feature_idx]):
+        contribution_rate.append(contribution_rate[idx]+val**2)
+      contribution_rate.pop(0)
+      components_list = np.arange(n_components)+1
+      axs[i%2].plot(components_list, contribution_rate, "-o")
+      if lim:
+        axs[i%2].set_ylim(0, 1)
+      dx, dy = self.calc_lim(axs[i%2])
+      for x, y in zip(components_list, contribution_rate):
+        axs[i%2].text(x-dx, y+dy, x)
+      axs[i%2].set_xlabel("Number of principal components")
+      axs[i%2].set_ylabel("Cumulative contribution rate of " + self.df.columns[feature_idx])
+      axs[i%2].grid()
+      i += 1
+      if feature_idx == len(pca.components_[0])-1:
+        pdf.savefig()
+        plt.clf()
+    pdf.close()
   
   def make_box_plot(self):
     pdf = PdfPages(self.output_chart_path+"_独立成分箱ひげ図.pdf")
@@ -243,7 +308,7 @@ class make_ica:
     n_features    : 特徴量数
     n_components  : 主成分数
     '''
-    n_components = 10
+    n_components = 20
     ica = FastICA(n_components=n_components, random_state=0)
     self.X_transformed = ica.fit_transform(self.dfs)  #? (n_samples, n_features) => (n_samples, n_components): 各サンプルがそれぞれの主成分をどれだけ有しているかを分布する
     self.f_len = len(self.X_transformed[0])
@@ -273,6 +338,13 @@ class make_ica:
       if A_ica_mean / self.df["群"].value_counts()["A"] < B_ica_mean / self.df["群"].value_counts()["B"]:
         self.ica_components[i] *= -1
         self.X_transformed[:, i] *= -1
+      
+    
+    # #! 累積寄与率
+    self.make_ticker(pca)
+
+    # #! 固有ベクトルの累積寄与率（x軸固定）
+    # self.make_eigenvector_ticker(pca, n_components, lim=True)
 
     # #! ica のみ箱ひげ図
     # self.make_box_plot()
@@ -297,15 +369,15 @@ class make_ica:
     self.target_df = pd.concat([self.target_df, group, gender], axis=1)
 
     # #! 主成分散布図
-    self.make_scatter()
+    # self.make_scatter()
 
     # #! ヒストグラム
-    self.make_histgran()
+    # self.make_histgran()
 
     # #! 寄与度相関
-    target_c = np.stack([pca.components_[1], pca.components_[3], pca.components_[5], pca.components_[6], ica.components_[0], ica.components_[3], ica.components_[6]]).T
-    self.target_df = pd.DataFrame(target_c, columns=self.target_components)
-    self.make_relations()
+    # target_c = np.stack([pca.components_[1], pca.components_[3], pca.components_[5], pca.components_[6], ica.components_[0], ica.components_[3], ica.components_[6]]).T
+    # self.target_df = pd.DataFrame(target_c, columns=self.target_components)
+    # self.make_relations()
 
   def main(self):
     self.init_data()                    #! data/arange から必要データを DataFrame に整形
@@ -317,7 +389,7 @@ if __name__ == "__main__":
   today = str(datetime.date.today())
   date_format = today[2:4] + today[5:7] + today[8:10]
   #? >>>> ここは変更する >>>>
-  input_file_name = "220606 調査報告書+IDs_A先.xlsx"
+  input_file_name = "220606 調査報告書+IDs.xlsx"
   output_file_name = date_format + "_集計.xlsx"
   output_chart_name = date_format
   dir_names = ["04_pickup_params"]
