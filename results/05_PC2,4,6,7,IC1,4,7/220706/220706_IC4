@@ -1,0 +1,46 @@
+digraph {
+	"LF/HF_h2D
+LF/HF_実験教示"
+	"kU/l_Break
+5. 休憩後_唾液kU/l"
+	"LF/(LF+HF)_h2D
+LF/(LF+HF)_実験教示"
+	"LF/HF_hVRf2
+LF/HF_心理的安定化"
+	"Anx_VRf0
+3. テスト歩行後_状態不安"
+	"HF_hVRf2
+HF_心理的安定化"
+	"RRI_hVRf2
+RRI_心理的安定化"
+	"DC_h2D
+DC_実験教示"
+	"LF/HF_hBreak
+LF/HF_5分休憩"
+	"LF_hVR
+LF_津波避難VR"
+	"LF/HF_h2D
+LF/HF_実験教示" -> "LF/(LF+HF)_h2D
+LF/(LF+HF)_実験教示" [label=0.54]
+	"LF/HF_hVRf2
+LF/HF_心理的安定化" -> "LF/(LF+HF)_h2D
+LF/(LF+HF)_実験教示" [label=0.13]
+	"RRI_hVRf2
+RRI_心理的安定化" -> "LF/(LF+HF)_h2D
+LF/(LF+HF)_実験教示" [label=0.25]
+	"DC_h2D
+DC_実験教示" -> "LF/(LF+HF)_h2D
+LF/(LF+HF)_実験教示" [label=0.09]
+	"LF/HF_hBreak
+LF/HF_5分休憩" -> "LF/(LF+HF)_h2D
+LF/(LF+HF)_実験教示" [label=0.19]
+	"HF_hVRf2
+HF_心理的安定化" -> "RRI_hVRf2
+RRI_心理的安定化" [label=0.41]
+	"RRI_hVRf2
+RRI_心理的安定化" -> "DC_h2D
+DC_実験教示" [label=0.32]
+	{
+		rank=same
+	}
+}

@@ -1,0 +1,117 @@
+digraph {
+	Anx_Break
+	Anx_VR
+	Anx_VRf0
+	CVRR_hVRf1
+	DC_h2D
+	HF_hBreak
+	HF_hVR
+	HF_hVRf2
+	"kU/l_2D"
+	"kU/l_Break"
+	"kU/l_VR"
+	"kU/l_VRf0"
+	LF_h2D
+	LF_hBreak
+	LF_hVR
+	LF_hVRf0
+	LF_hVRf1
+	"LF/(LF+HF)_h2D"
+	"LF/(LF+HF)_hVR"
+	"LF/HF_h2D"
+	"LF/HF_hBreak"
+	"LF/HF_hVRf0"
+	"LF/HF_hVRf1"
+	"LF/HF_hVRf2"
+	pNN50_hVRf2
+	RMSSD_hVRf2
+	RRI_hVRf2
+	SDNN_h2D
+	SDNN_hVRf1
+	Anx_VRf0 -> Anx_Break [label=0.44]
+	"kU/l_VRf0" -> Anx_Break [label=0.26]
+	LF_hVRf0 -> Anx_Break [label=0.03]
+	"LF/HF_hBreak" -> Anx_Break [label=-0.14]
+	"LF/HF_hVRf0" -> Anx_Break [label=0.13]
+	Anx_Break -> Anx_VR [label=0.49]
+	Anx_VRf0 -> Anx_VR [label=0.25]
+	LF_hBreak -> CVRR_hVRf1 [label=0.48]
+	LF_hVR -> CVRR_hVRf1 [label=0.18]
+	RRI_hVRf2 -> CVRR_hVRf1 [label=0.09]
+	CVRR_hVRf1 -> DC_h2D [label=0.12]
+	RRI_hVRf2 -> DC_h2D [label=0.20]
+	SDNN_hVRf1 -> DC_h2D [label=0.18]
+	LF_hBreak -> HF_hBreak [label=0.45]
+	RRI_hVRf2 -> HF_hBreak [label=0.13]
+	SDNN_hVRf1 -> HF_hBreak [label=0.04]
+	CVRR_hVRf1 -> HF_hVR [label=0.14]
+	LF_hVR -> HF_hVR [label=0.38]
+	SDNN_hVRf1 -> HF_hVR [label=0.10]
+	Anx_VRf0 -> HF_hVRf2 [label=0.12]
+	CVRR_hVRf1 -> HF_hVRf2 [label=-0.18]
+	HF_hBreak -> HF_hVRf2 [label=0.37]
+	"kU/l_2D" -> HF_hVRf2 [label=-0.12]
+	LF_hVRf0 -> HF_hVRf2 [label=0.61]
+	"LF/HF_hVRf0" -> HF_hVRf2 [label=-0.31]
+	RRI_hVRf2 -> HF_hVRf2 [label=0.31]
+	SDNN_hVRf1 -> HF_hVRf2 [label=-0.17]
+	"kU/l_2D" -> "kU/l_VR" [label=0.32]
+	"kU/l_2D" -> "kU/l_VRf0" [label=0.37]
+	HF_hVRf2 -> LF_h2D [label=0.03]
+	LF_hBreak -> LF_h2D [label=0.51]
+	LF_hVRf0 -> LF_h2D [label=0.34]
+	"LF/(LF+HF)_h2D" -> LF_h2D [label=0.07]
+	SDNN_hVRf1 -> LF_h2D [label=0.10]
+	HF_hBreak -> LF_hVRf0 [label=0.12]
+	"LF/HF_hVRf0" -> LF_hVRf0 [label=0.43]
+	HF_hVR -> LF_hVRf1 [label=1.00]
+	Anx_VRf0 -> "LF/(LF+HF)_h2D" [label=-0.09]
+	CVRR_hVRf1 -> "LF/(LF+HF)_h2D" [label=0.28]
+	HF_hBreak -> "LF/(LF+HF)_h2D" [label=-0.30]
+	"kU/l_VR" -> "LF/(LF+HF)_h2D" [label=-0.20]
+	"kU/l_VRf0" -> "LF/(LF+HF)_h2D" [label=0.09]
+	RRI_hVRf2 -> "LF/(LF+HF)_h2D" [label=0.47]
+	SDNN_hVRf1 -> "LF/(LF+HF)_h2D" [label=0.16]
+	Anx_VRf0 -> "LF/(LF+HF)_hVR" [label=0.08]
+	CVRR_hVRf1 -> "LF/(LF+HF)_hVR" [label=0.25]
+	DC_h2D -> "LF/(LF+HF)_hVR" [label=0.05]
+	HF_hVRf2 -> "LF/(LF+HF)_hVR" [label=-0.23]
+	"kU/l_2D" -> "LF/(LF+HF)_hVR" [label=0.06]
+	"kU/l_Break" -> "LF/(LF+HF)_hVR" [label=-0.04]
+	"kU/l_VRf0" -> "LF/(LF+HF)_hVR" [label=0.07]
+	LF_hBreak -> "LF/(LF+HF)_hVR" [label=-0.15]
+	LF_hVR -> "LF/(LF+HF)_hVR" [label=-0.14]
+	LF_hVRf0 -> "LF/(LF+HF)_hVR" [label=0.13]
+	"LF/HF_h2D" -> "LF/(LF+HF)_hVR" [label=0.04]
+	"LF/HF_hVRf1" -> "LF/(LF+HF)_hVR" [label=0.62]
+	RRI_hVRf2 -> "LF/(LF+HF)_hVR" [label=0.29]
+	SDNN_hVRf1 -> "LF/(LF+HF)_hVR" [label=0.12]
+	"LF/(LF+HF)_h2D" -> "LF/HF_h2D" [label=0.55]
+	HF_hVR -> "LF/HF_hVRf1" [label=1.00]
+	"kU/l_2D" -> "LF/HF_hVRf2" [label=0.41]
+	LF_hVRf0 -> "LF/HF_hVRf2" [label=0.07]
+	"LF/(LF+HF)_h2D" -> "LF/HF_hVRf2" [label=0.23]
+	HF_hBreak -> pNN50_hVRf2 [label=0.14]
+	HF_hVRf2 -> pNN50_hVRf2 [label=0.34]
+	"kU/l_VRf0" -> pNN50_hVRf2 [label=-0.09]
+	"LF/(LF+HF)_h2D" -> pNN50_hVRf2 [label=-0.09]
+	"LF/HF_hBreak" -> pNN50_hVRf2 [label=-0.02]
+	"LF/HF_hVRf0" -> pNN50_hVRf2 [label=0.06]
+	"LF/HF_hVRf2" -> pNN50_hVRf2 [label=-0.07]
+	RMSSD_hVRf2 -> pNN50_hVRf2 [label=0.47]
+	Anx_VRf0 -> RMSSD_hVRf2 [label=-0.03]
+	HF_hBreak -> RMSSD_hVRf2 [label=0.13]
+	HF_hVRf2 -> RMSSD_hVRf2 [label=0.57]
+	LF_hVRf0 -> RMSSD_hVRf2 [label=0.12]
+	RRI_hVRf2 -> RMSSD_hVRf2 [label=0.24]
+	DC_h2D -> SDNN_h2D [label=0.07]
+	HF_hVRf2 -> SDNN_h2D [label=0.25]
+	LF_h2D -> SDNN_h2D [label=0.08]
+	LF_hBreak -> SDNN_h2D [label=0.16]
+	RRI_hVRf2 -> SDNN_h2D [label=0.08]
+	SDNN_hVRf1 -> SDNN_h2D [label=0.42]
+	CVRR_hVRf1 -> SDNN_hVRf1 [label=0.83]
+	{
+		rank=same
+	}
+}

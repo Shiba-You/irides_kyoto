@@ -1,0 +1,67 @@
+digraph {
+	"kU/l_Break
+5. 休憩後_唾液kU/l"
+	"kU/l_2D
+2. 教示後_唾液kU/l"
+	"LF/HF_hVRf2
+LF/HF_心理的安定化"
+	"kU/l_VR
+4. 津波後_唾液kU/l)"
+	"Anx_VRf0
+3. テスト歩行後_状態不安"
+	"RRI_hVRf2
+RRI_心理的安定化"
+	"RMSSD_hVRf2
+RMSSD_心理的安定化"
+	"pNN50_hVRf2
+pNN50_心理的安定化"
+	"Anx_VR
+4. 津波後_状態不安"
+	"LF_h2D
+LF_実験教示"
+	"kU/l_Break
+5. 休憩後_唾液kU/l" -> "kU/l_2D
+2. 教示後_唾液kU/l" [label=0.27]
+	"LF/HF_hVRf2
+LF/HF_心理的安定化" -> "kU/l_2D
+2. 教示後_唾液kU/l" [label=0.39]
+	"kU/l_VR
+4. 津波後_唾液kU/l)" -> "kU/l_2D
+2. 教示後_唾液kU/l" [label=0.05]
+	"kU/l_Break
+5. 休憩後_唾液kU/l" -> "Anx_VRf0
+3. テスト歩行後_状態不安" [label=0.16]
+	"LF/HF_hVRf2
+LF/HF_心理的安定化" -> "Anx_VRf0
+3. テスト歩行後_状態不安" [label=0.13]
+	"kU/l_VR
+4. 津波後_唾液kU/l)" -> "Anx_VRf0
+3. テスト歩行後_状態不安" [label=-0.06]
+	"RMSSD_hVRf2
+RMSSD_心理的安定化" -> "Anx_VRf0
+3. テスト歩行後_状態不安" [label=-0.80]
+	"pNN50_hVRf2
+pNN50_心理的安定化" -> "Anx_VRf0
+3. テスト歩行後_状態不安" [label=0.78]
+	"Anx_VR
+4. 津波後_状態不安" -> "Anx_VRf0
+3. テスト歩行後_状態不安" [label=0.71]
+	"pNN50_hVRf2
+pNN50_心理的安定化" -> "RRI_hVRf2
+RRI_心理的安定化" [label=0.52]
+	"RRI_hVRf2
+RRI_心理的安定化" -> "RMSSD_hVRf2
+RMSSD_心理的安定化" [label=0.29]
+	"pNN50_hVRf2
+pNN50_心理的安定化" -> "RMSSD_hVRf2
+RMSSD_心理的安定化" [label=0.77]
+	"kU/l_2D
+2. 教示後_唾液kU/l" -> "Anx_VR
+4. 津波後_状態不安" [label=0.21]
+	"RMSSD_hVRf2
+RMSSD_心理的安定化" -> "LF_h2D
+LF_実験教示" [label=0.39]
+	{
+		rank=same
+	}
+}

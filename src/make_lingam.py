@@ -23,7 +23,8 @@ class make_lingam:
     self.dfs = pd.DataFrame()
     self.key = []
     self.target_df = pd.DataFrame()
-    self.target_components = {"PC2": 5, "PC4": 6, "PC6": 7, "PC7": 8, "IC1": 9, "IC4": 10, "IC7": 11}
+    # self.target_components = {"PC2": 5, "PC4": 6, "PC6": 7, "PC7": 8, "IC1": 9, "IC4": 10, "IC7": 11}
+    self.target_components = {"ALL": 4}
 
   def init_data(self, sheet_num):
     if os.path.exists(self.input_file_name):
@@ -41,21 +42,6 @@ class make_lingam:
     self.dfs = self.df.iloc[:, 3:].apply(lambda x: (x-x.mean())/x.std(), axis=0)
     for k in self.key:
       self.dfs[k] = self.dfs[k].fillna(self.dfs[k].mean())
-  
-  def output_to_sheet(self, df, sheet_name):
-    if not os.path.isfile(self.output_file_name):
-      wb = openpyxl.Workbook()
-      sheet = wb.active
-      wb.save(self.output_file_name)
-      glob.glob("*.xlsx")
-    try:
-      with pd.ExcelWriter(self.output_file_name, mode='a') as writer:
-        print("df    : ", df.shape)
-        print("sheet : ", sheet_name)
-        print("writer: ", writer)
-        df.to_excel(writer, sheet_name=sheet_name)
-    except:
-      print("既に作成済みです．")
 
   def calc_lingam(self, component):
     model = lingam.DirectLiNGAM()
@@ -79,7 +65,7 @@ if __name__ == "__main__":
   today = str(datetime.date.today())
   date_format = today[2:4] + today[5:7] + today[8:10]
   #? >>>> ここは変更する >>>>
-  input_file_name = "220606 調査報告書+IDs_A先.xlsx"
+  input_file_name = "220706 調査報告書+IDs_A先.xlsx"
   output_file_name = date_format + "_集計.xlsx"
   output_chart_name = date_format
   dir_names = ["05_PC2,4,6,7,IC1,4,7"]

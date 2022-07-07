@@ -1,0 +1,46 @@
+digraph {
+	"RRI_hVRf2
+RRI_心理的安定化"
+	"kU/l_VR
+4. 津波後_唾液kU/l)"
+	"Anx_VRf0
+3. テスト歩行後_状態不安"
+	"Anx_VR
+4. 津波後_状態不安"
+	"LF/(LF+HF)_hVR
+LF/(LF+HF)_津波避難VR"
+	"CVRR_hVRf1
+CVRR_津波避難VR準備"
+	"SDNN_hVRf1
+SDNN_津波避難VR準備"
+	"LF_hVRf1
+LF_津波避難VR準備"
+	"HF_hVR
+HF_津波避難VR"
+	"LF/HF_hVRf1
+LF/HF_津波避難VR準備"
+	"Anx_VR
+4. 津波後_状態不安" -> "Anx_VRf0
+3. テスト歩行後_状態不安" [label=0.56]
+	"RRI_hVRf2
+RRI_心理的安定化" -> "LF/(LF+HF)_hVR
+LF/(LF+HF)_津波避難VR" [label=0.24]
+	"LF_hVRf1
+LF_津波避難VR準備" -> "LF/(LF+HF)_hVR
+LF/(LF+HF)_津波避難VR" [label=0.64]
+	"LF/(LF+HF)_hVR
+LF/(LF+HF)_津波避難VR" -> "CVRR_hVRf1
+CVRR_津波避難VR準備" [label=0.53]
+	"CVRR_hVRf1
+CVRR_津波避難VR準備" -> "SDNN_hVRf1
+SDNN_津波避難VR準備" [label=0.76]
+	"LF_hVRf1
+LF_津波避難VR準備" -> "HF_hVR
+HF_津波避難VR" [label=1.00]
+	"LF_hVRf1
+LF_津波避難VR準備" -> "LF/HF_hVRf1
+LF/HF_津波避難VR準備" [label=1.00]
+	{
+		rank=same
+	}
+}

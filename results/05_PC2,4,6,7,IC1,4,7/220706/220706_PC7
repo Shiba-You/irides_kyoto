@@ -1,0 +1,52 @@
+digraph {
+	"LF/HF_hVRf0
+LF/HF_テスト歩行"
+	"LF_hVRf0
+LF_テスト歩行"
+	"Anx_VRf0
+3. テスト歩行後_状態不安"
+	"HF_hBreak
+HF_5分休憩"
+	"CVRR_hVRf1
+CVRR_津波避難VR準備"
+	"LF/HF_hVRf2
+LF/HF_心理的安定化"
+	"RRI_hVRf2
+RRI_心理的安定化"
+	"SDNN_hVRf1
+SDNN_津波避難VR準備"
+	"LF_hVR
+LF_津波避難VR"
+	"Anx_VR
+4. 津波後_状態不安"
+	"LF/HF_hVRf0
+LF/HF_テスト歩行" -> "LF_hVRf0
+LF_テスト歩行" [label=0.55]
+	"LF/HF_hVRf0
+LF/HF_テスト歩行" -> "HF_hBreak
+HF_5分休憩" [label=-0.33]
+	"LF_hVRf0
+LF_テスト歩行" -> "HF_hBreak
+HF_5分休憩" [label=0.42]
+	"LF/HF_hVRf2
+LF/HF_心理的安定化" -> "HF_hBreak
+HF_5分休憩" [label=-0.28]
+	"RRI_hVRf2
+RRI_心理的安定化" -> "HF_hBreak
+HF_5分休憩" [label=0.34]
+	"SDNN_hVRf1
+SDNN_津波避難VR準備" -> "CVRR_hVRf1
+CVRR_津波避難VR準備" [label=0.87]
+	"HF_hBreak
+HF_5分休憩" -> "SDNN_hVRf1
+SDNN_津波避難VR準備" [label=0.26]
+	"LF_hVR
+LF_津波避難VR" -> "SDNN_hVRf1
+SDNN_津波避難VR準備" [label=0.10]
+	"Anx_VRf0
+3. テスト歩行後_状態不安" -> "Anx_VR
+4. 津波後_状態不安" [label=0.58]
+	{
+		rank=same
+	}
+}

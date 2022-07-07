@@ -1,0 +1,29 @@
+digraph {
+	"kU/l_Break"
+	"kU/l_2D"
+	"LF/HF_hVRf2"
+	"kU/l_VR"
+	Anx_VRf0
+	RRI_hVRf2
+	RMSSD_hVRf2
+	pNN50_hVRf2
+	Anx_VR
+	LF_h2D
+	"kU/l_Break" -> "kU/l_2D" [label=0.27]
+	"LF/HF_hVRf2" -> "kU/l_2D" [label=0.39]
+	"kU/l_VR" -> "kU/l_2D" [label=0.05]
+	"kU/l_Break" -> Anx_VRf0 [label=0.16]
+	"LF/HF_hVRf2" -> Anx_VRf0 [label=0.13]
+	"kU/l_VR" -> Anx_VRf0 [label=-0.06]
+	RMSSD_hVRf2 -> Anx_VRf0 [label=-0.80]
+	pNN50_hVRf2 -> Anx_VRf0 [label=0.78]
+	Anx_VR -> Anx_VRf0 [label=0.71]
+	pNN50_hVRf2 -> RRI_hVRf2 [label=0.52]
+	RRI_hVRf2 -> RMSSD_hVRf2 [label=0.29]
+	pNN50_hVRf2 -> RMSSD_hVRf2 [label=0.77]
+	"kU/l_2D" -> Anx_VR [label=0.21]
+	RMSSD_hVRf2 -> LF_h2D [label=0.39]
+	{
+		rank=same
+	}
+}

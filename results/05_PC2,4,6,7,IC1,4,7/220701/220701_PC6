@@ -1,0 +1,26 @@
+digraph {
+	"kU/l_2D"
+	"kU/l_VR"
+	"LF/HF_hVRf0"
+	"LF/HF_hVRf2"
+	"kU/l_Break"
+	Anx_VR
+	LF_hBreak
+	SDNN_h2D
+	LF_hVRf0
+	Anx_Break
+	"kU/l_Break" -> "kU/l_2D" [label=0.41]
+	"kU/l_2D" -> "LF/HF_hVRf2" [label=0.54]
+	"kU/l_Break" -> "LF/HF_hVRf2" [label=-0.18]
+	SDNN_h2D -> "LF/HF_hVRf2" [label=0.14]
+	LF_hVRf0 -> "LF/HF_hVRf2" [label=0.09]
+	LF_hBreak -> Anx_VR [label=-0.09]
+	Anx_Break -> Anx_VR [label=0.72]
+	LF_hBreak -> SDNN_h2D [label=0.54]
+	LF_hVRf0 -> SDNN_h2D [label=0.28]
+	"LF/HF_hVRf0" -> LF_hVRf0 [label=0.43]
+	"kU/l_2D" -> Anx_Break [label=0.16]
+	{
+		rank=same
+	}
+}
