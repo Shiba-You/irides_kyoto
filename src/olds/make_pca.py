@@ -34,7 +34,7 @@ class make_pca:
     if os.path.exists(self.input_file_name):
       xls = pd.ExcelFile(self.input_file_name)
       sheets = xls.sheet_names
-      input_sheet = sheets[4]
+      input_sheet = sheets[3]
       self.df = pd.DataFrame(xls.parse(input_sheet))
       self.key = list(self.df.columns)[3:]
     else:
@@ -286,10 +286,10 @@ if __name__ == "__main__":
   today = str(datetime.date.today())
   date_format = today[2:4] + today[5:7] + today[8:10]
   #? >>>> ここは変更する >>>>
-  input_file_name = "220606 調査報告書+IDs.xlsx"
+  input_file_name = "220707 調査報告書+IDs_A先.xlsx"
   output_file_name = date_format + "_集計.xlsx"
   output_chart_name = date_format
-  dir_names = ["04_pickup_params"]
+  dir_names = ["07_PC1,2,5,6,IC1,6,8"]
   this_dir = 0                                    #! {0: 04_pickup_params}
   #? <<<< ここは変更する <<<<
   input_file_path = os.path.join("../data/arange", dir_names[this_dir], input_file_name)

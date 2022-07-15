@@ -24,10 +24,11 @@ import glob
 from adjustText import adjust_text
 
 class make_ica:
-  def __init__(self, input_file_name, output_file_name, output_chart_path):
+  def __init__(self, input_file_name, output_file_name, output_chart_path, target_sheet_number):
     self.input_file_name = input_file_name
     self.output_file_name = output_file_name
     self.output_chart_path = output_chart_path
+    self.target_sheet_number = target_sheet_number
     self.df = pd.DataFrame()
     self.dfs = pd.DataFrame()
     self.pca_components = []
@@ -37,13 +38,13 @@ class make_ica:
     self.f_len = 0
     self.key = []
     self.target_df = pd.DataFrame()
-    self.target_components = ["PC2", "PC4", "PC6", "PC7", "IC1", "IC4", "IC7"]
+    self.target_components = ["PC1", "PC2", "PC5", "PC6", "IC1", "IC6", "IC8"]
 
   def init_data(self):
     if os.path.exists(self.input_file_name):
       xls = pd.ExcelFile(self.input_file_name)
       sheets = xls.sheet_names
-      input_sheet = sheets[4]
+      input_sheet = sheets[self.target_sheet_number]
       self.df = pd.DataFrame(xls.parse(input_sheet))
       self.key = list(self.df.columns)[3:]
     else:
@@ -66,8 +67,6 @@ class make_ica:
   def output_to_sheet(self, df, sheet_name):
     if not os.path.isfile(self.output_file_name):
       wb = openpyxl.Workbook()
-      sheet = wb.active
-      # sheet.title = '_'
       wb.save(self.output_file_name)
       glob.glob("*.xlsx")
     try:
@@ -79,6 +78,29 @@ class make_ica:
     except:
       print("既に作成済みです．")
   
+  def _drop_outliers(self, origin_df, c_f, c_s):
+    c_f_q1 = origin_df[c_f].quantile(0.25)      # 第1四分位数
+    c_f_q3 = origin_df[c_f].quantile(0.75)      # 第3四分位値
+    c_f_iqr = c_f_q3 - c_f_q1                                 # 第1四分位値 と 第3四分位値 の範囲
+    c_f_lower_limit  = c_f_q1 - 1.5 * c_f_iqr                 # 下限値として、q1 から 1.5 * iqrを引いたもの 
+    c_f_upper_limit  = c_f_q3 + 1.5 * c_f_iqr                  # 上限値として、q3 から 1.5 * iqrをたしたもの 
+    c_s_q1 = origin_df[c_s].quantile(0.25)      # 第1四分位数
+    c_s_q3 = origin_df[c_s].quantile(0.75)      # 第3四分位値
+    c_s_iqr = c_s_q3 - c_s_q1                                 # 第1四分位値 と 第3四分位値 の範囲
+    c_s_lower_limit  = c_s_q1 - 1.5 * c_s_iqr                 # 下限値として、q1 から 1.5 * iqrを引いたもの 
+    c_s_upper_limit  = c_s_q3 + 1.5 * c_s_iqr                  # 上限値として、q3 から 1.5 * iqrをたしたもの 
+    dropped_df = origin_df.query(f'{c_f_lower_limit} <= {c_f} <= {c_f_upper_limit} & {c_s_lower_limit} <= {c_s} <= {c_s_upper_limit}')
+    dropped_df = pd.DataFrame(dropped_df)
+    # print("========================================================")
+    # print(f"lower_limit: {lower_limit},  upper_limit: {upper_limit},  df_shape: {dropped_df.shape}")
+    # print(dropped_df)
+    # print("--------------------------------------------------------")
+    # print(origin_df.query(f'not {lower_limit} <= {component} <= {upper_limit}'))
+    return dropped_df
+  
+  def _separate_df(self, origin__df):
+    return
+  
   def make_ticker(self, pca):
     pdf = PdfPages(self.output_chart_path+"_累積寄与率.pdf")
     plt.figure(figsize=(20,10))
@@ -87,10 +109,6 @@ class make_ica:
     dx, dy = self.calc_lim(axes)
     plt.plot([0] + list( np.cumsum(pca.explained_variance_ratio_)), "-o")
     for x, y in zip(self.df.iloc[:, 0], list(np.cumsum(pca.explained_variance_ratio_))):
-      if x <= 10:
-        print(f"No. : {x, y}")
-        print(f"x: {x-dx}")
-        print(f"y: {y-dy}")
       plt.text(x-dx, y+dy, x)
     plt.xlabel("Number of principal components")
     plt.ylabel("Cumulative contribution rate")
@@ -163,23 +181,23 @@ class make_ica:
     plt.clf()
     pdf.close()
   
-  def arange_pca_and_ica(self, method, startAt, endAt):
+  def arange_pca_and_ica(self, method):
     if method == "PC":
-      df = pd.DataFrame({"component": "PC{}".format(startAt+1), "value": self.feature[:,startAt], "group": self.df["群"]})
-      for i in range(startAt+1, endAt):
+      df = pd.DataFrame({"component": "PC{}".format(1), "value": self.feature[:,0], "group": self.df["群"]})
+      for i in range(1, 10):
         df_pc = pd.DataFrame({"component": "PC{}".format(i+1), "value": self.feature[:,i], "group": self.df["群"]})
         df = pd.concat([df, df_pc])
     elif method == "IC":
-      df = pd.DataFrame({"component": "IC{}".format(startAt+1), "value": self.X_transformed[:,startAt], "group": self.df["群"]})
-      for i in range(startAt, endAt):
+      df = pd.DataFrame({"component": "IC{}".format(1), "value": self.X_transformed[:,0], "group": self.df["群"]})
+      for i in range(1, 10):
         df_ic = pd.DataFrame({"component": "IC{}".format(i+1), "value": self.X_transformed[:,i], "group": self.df["群"]})
         df = pd.concat([df, df_ic])
     elif method == "ALL":
-      df = pd.DataFrame({"component": "PC{}".format(startAt+1), "value": self.feature[:,startAt], "group": self.df["群"]})
-      for i in range(startAt+1, endAt):
+      df = pd.DataFrame({"component": "PC{}".format(1), "value": self.feature[:,0], "group": self.df["群"]})
+      for i in range(1, 10):
         df_pc = pd.DataFrame({"component": "PC{}".format(i+1), "value": self.feature[:,i], "group": self.df["群"]})
         df = pd.concat([df, df_pc])
-      for i in range(startAt, endAt):
+      for i in range(1, 10):
         df_ic = pd.DataFrame({"component": "IC{}".format(i+1), "value": self.X_transformed[:,i], "group": self.df["群"]})
         df = pd.concat([df, df_ic])
     return df
@@ -192,6 +210,7 @@ class make_ica:
     sns.set(font='IPAexGothic', font_scale = 1)
     sns.set_style("whitegrid")
     color_palette = {"A": "#FF8080", "B": "#8080FF"}
+    print(self.f_len)
     for i in range(self.f_len//5):
       if i%2==0:
         if i != 0:
@@ -199,7 +218,7 @@ class make_ica:
           plt.clf()
         f, axs = plt.subplots(2, 1, figsize=(16, 10))
         plt.subplots_adjust(wspace=0.4, hspace=0.8, bottom=0.17, top=0.93)
-      temp_df = self.arange_pca_and_ica("PC" if i == 0 else "IC", 0, 10)
+      temp_df = self.arange_pca_and_ica("PC" if i == 0 else "IC")
       sns.boxplot(
         x="component",
         y="value",
@@ -233,6 +252,9 @@ class make_ica:
         i = 0
         f, axs = plt.subplots(1, 2, figsize=(16, 8))
         plt.subplots_adjust(wspace=0.4, hspace=0.8, bottom=0.17, top=0.93)
+      print(self.target_df)
+      # df_c = self._drop_outliers(self.target_df[["group", "gender", c_f, c_s]], c_f, c_s)
+
       c_f_max, c_f_min, c_f_a_ave, c_f_b_ave, dx = self.target_df[c_f].max(), self.target_df[c_f].min(), feature_A[c_f].mean(), feature_B[c_f].mean(), (self.target_df[c_f].max() - self.target_df[c_f].min())/100*5
       c_s_max, c_s_min, c_s_a_ave, c_s_b_ave, dy = self.target_df[c_s].max(), self.target_df[c_s].min(), feature_A[c_s].mean(), feature_B[c_s].mean(), (self.target_df[c_s].max() - self.target_df[c_s].min())/100*5
       axs[i%2].scatter(feature_A_M[c_f].values, feature_A_M[c_s].values, alpha=0.8, s=100, c="red", label="A-male", marker="o")
@@ -278,9 +300,10 @@ class make_ica:
     pdf.close()
 
   def make_relations(self):
-    pdf = PdfPages(self.output_chart_path+"_寄与度相関.pdf")
+    pdf = PdfPages(self.output_chart_path+"_寄与度相関_old.pdf")
     i = 0
     for c_f, c_s in itertools.combinations(self.target_components, 2):
+      print(c_f, c_s)
       if i%2==0:
         if i != 0:
           pdf.savefig()
@@ -302,13 +325,33 @@ class make_ica:
     plt.clf()
     pdf.close()
 
+  def count_mean_as_group(self, i):
+    A_pca_mean = 0
+    A_ica_mean = 0
+    B_pca_mean = 0
+    B_ica_mean = 0
+    for j, group in enumerate(self.df["群"]):
+      if group == "A":
+        A_pca_mean += self.feature[j, i]
+        A_ica_mean += self.X_transformed[j, i]
+      elif group == "B":
+        B_pca_mean += self.feature[j, i]
+        B_ica_mean += self.X_transformed[j, i]
+    A_pca_mean /= self.df["群"].value_counts()["A"]
+    A_ica_mean /= self.df["群"].value_counts()["A"]
+    B_pca_mean /= self.df["群"].value_counts()["B"]
+    B_ica_mean /= self.df["群"].value_counts()["B"]
+    # print(f"PCA -- A: {round(A_pca_mean, 8)},  B: {round(B_pca_mean, 8)}, Bigger: {'A' if A_pca_mean > B_pca_mean else 'B'}")
+    # print(f"ICA -- A: {round(A_ica_mean, 8)},  B: {round(B_ica_mean, 8)}, Bigger: {'A' if A_ica_mean > B_ica_mean else 'B'}")
+    return A_pca_mean, A_ica_mean, B_pca_mean, B_ica_mean
+
   def calc_pca(self):
     '''
     n_samples     : 被験体数
     n_features    : 特徴量数
     n_components  : 主成分数
     '''
-    n_components = 20
+    n_components = 10
     ica = FastICA(n_components=n_components, random_state=0)
     self.X_transformed = ica.fit_transform(self.dfs)  #? (n_samples, n_features) => (n_samples, n_components): 各サンプルがそれぞれの主成分をどれだけ有しているかを分布する
     self.f_len = len(self.X_transformed[0])
@@ -321,23 +364,19 @@ class make_ica:
 
     #! A群 > B群となるように，固有ベクトルの正負を変更
     for i in range(self.f_len):
-      A_pca_mean = 0
-      A_ica_mean = 0
-      B_pca_mean = 0
-      B_ica_mean = 0
-      for j, group in enumerate(self.df["群"]):
-        if group == "A":
-          A_pca_mean += self.feature[j, i]
-          A_ica_mean += self.X_transformed[j, i]
-        elif group == "B":
-          B_pca_mean += self.feature[j, i]
-          B_ica_mean += self.X_transformed[j, i]
-      if A_pca_mean / self.df["群"].value_counts()["A"] < B_pca_mean / self.df["群"].value_counts()["B"]:
+      # print("========================================================")
+      # print(f"Components: {i+1}")
+      A_pca_mean, A_ica_mean, B_pca_mean, B_ica_mean = self.count_mean_as_group(i)
+      if A_pca_mean < B_pca_mean:
         self.pca_components[i] *= -1
         self.feature[:, i] *= -1
-      if A_ica_mean / self.df["群"].value_counts()["A"] < B_ica_mean / self.df["群"].value_counts()["B"]:
+        # print("---------------------- convert ----------------------")
+        _, _, _, _ = self.count_mean_as_group(i)
+      if A_ica_mean < B_ica_mean:
         self.ica_components[i] *= -1
         self.X_transformed[:, i] *= -1
+        # print("---------------------- convert ----------------------")
+        _, _, _, _ = self.count_mean_as_group(i)
       
     
     # #! 累積寄与率
@@ -353,31 +392,33 @@ class make_ica:
     # self.make_box_plot_pca_and_ica()
 
     # #! pca + ica 箱ひげ図（拡大）
-    # self.make_box_plot_pca_and_ica(True)
+    self.make_box_plot_pca_and_ica(True)
 
     # #! ica + pca の固有ベクトル
-    # df = pd.DataFrame(self.pca_components, columns=self.dfs.columns, index=["PC{}".format(i+1) for i in range(10)])
-    # self.output_to_sheet(df.T, sheet_name="PCA_固有ベクトル")
-    # df = pd.DataFrame(self.ica_components, columns=self.dfs.columns, index=["IC{}".format(i+1) for i in range(10)])
-    # self.output_to_sheet(df.T, sheet_name="ICA_固有ベクトル")
+    df = pd.DataFrame(self.pca_components, columns=self.dfs.columns, index=["PC{}".format(i+1) for i in range(10)])
+    self.output_to_sheet(df.T, sheet_name="PCA_固有ベクトル")
+    df = pd.DataFrame(self.ica_components, columns=self.dfs.columns, index=["IC{}".format(i+1) for i in range(10)])
+    self.output_to_sheet(df.T, sheet_name="ICA_固有ベクトル")
 
     # #! pca + ica に 群と性別を追加
-    target = np.stack([self.feature[:,1], self.feature[:,3], self.feature[:,5], self.feature[:,6], self.X_transformed[:,0], self.X_transformed[:,3], self.X_transformed[:,6]]).T
+    #? 条件変更点
+    target = np.stack([self.feature[:,0], self.feature[:,1], self.feature[:,4], self.feature[:,5], self.X_transformed[:,0], self.X_transformed[:,5], self.X_transformed[:,7]]).T
+    print(target.shape)
     self.target_df = pd.DataFrame(target, columns=self.target_components)
     group = pd.Series(self.df["群"], name='group')
     gender = pd.Series(self.df["性別"], name='gender')
     self.target_df = pd.concat([self.target_df, group, gender], axis=1)
 
     # #! 主成分散布図
-    # self.make_scatter()
+    self.make_scatter()
 
     # #! ヒストグラム
-    # self.make_histgran()
+    self.make_histgran()
 
     # #! 寄与度相関
-    # target_c = np.stack([pca.components_[1], pca.components_[3], pca.components_[5], pca.components_[6], ica.components_[0], ica.components_[3], ica.components_[6]]).T
-    # self.target_df = pd.DataFrame(target_c, columns=self.target_components)
-    # self.make_relations()
+    target_c = np.stack([pca.components_[0], pca.components_[1], pca.components_[4], pca.components_[5], ica.components_[0], ica.components_[5], ica.components_[7]]).T
+    self.target_df = pd.DataFrame(target_c, columns=self.target_components)
+    self.make_relations()
 
   def main(self):
     self.init_data()                    #! data/arange から必要データを DataFrame に整形
@@ -389,16 +430,17 @@ if __name__ == "__main__":
   today = str(datetime.date.today())
   date_format = today[2:4] + today[5:7] + today[8:10]
   #? >>>> ここは変更する >>>>
-  input_file_name = "220606 調査報告書+IDs.xlsx"
+  input_file_name = "220707 調査報告書+IDs_A先.xlsx"
   output_file_name = date_format + "_集計.xlsx"
   output_chart_name = date_format
-  dir_names = ["04_pickup_params"]
+  dir_names = ["07_PC1,2,5,6,IC1,6,8"]
+  target_sheet_number = 3                         #! {3: 03_PC_IC,    4: _03_PC_IC_A後}
   this_dir = 0                                    #! {0: 04_pickup_params}
   #? <<<< ここは変更する <<<<
   input_file_path = os.path.join("../data/arange", dir_names[this_dir], input_file_name)
   output_file_path = os.path.join("../results/", dir_names[this_dir], output_file_name)
   output_chart_path = os.path.join("../results/", dir_names[this_dir], output_chart_name)
-  mi = make_ica(input_file_path, output_file_path, output_chart_path)
+  mi = make_ica(input_file_path, output_file_path, output_chart_path, target_sheet_number)
   mi.main()
 
 
