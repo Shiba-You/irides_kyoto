@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import itertools
+from utils.loggers.checkers import _multiple_checker
 from .. import arange_data
 
 def draw(output_file_path, target_features_df, target_components_columns, outliers = True):
@@ -28,7 +29,7 @@ def draw(output_file_path, target_features_df, target_components_columns, outlie
     c_f_max, c_f_min, c_f_a_ave, c_f_b_ave, dx = df_c[c_f].max(), df_c[c_f].min(), feature_A[c_f].mean(), feature_B[c_f].mean(), (df_c[c_f].max() - df_c[c_f].min())/100*5
     c_s_max, c_s_min, c_s_a_ave, c_s_b_ave, dy = df_c[c_s].max(), df_c[c_s].min(), feature_A[c_s].mean(), feature_B[c_s].mean(), (df_c[c_s].max() - df_c[c_s].min())/100*5
 
-    _checker(c_f, c_s, feature_A_M, feature_A_W, feature_B_M, feature_B_W, c_f_a_ave, c_f_b_ave, c_s_a_ave, c_s_b_ave)
+    _multiple_checker(c_f, c_s, feature_A_M, feature_A_W, feature_B_M, feature_B_W, c_f_a_ave, c_f_b_ave, c_s_a_ave, c_s_b_ave)
 
     axs[i%2].scatter(feature_A_M[c_f].values, feature_A_M[c_s].values, alpha=0.8, s=100, c="red", label="A-male", marker="o")
     axs[i%2].scatter(feature_A_W[c_f].values, feature_A_W[c_s].values, alpha=0.8, s=100, c="red", label="A-female", marker="^")
@@ -68,7 +69,7 @@ def draw_out_legend(output_file_path, target_features_df, target_components_colu
     c_f_max, c_f_min, c_f_a_ave, c_f_b_ave, dx = df_c[c_f].max(), df_c[c_f].min(), feature_A[c_f].mean(), feature_B[c_f].mean(), (df_c[c_f].max() - df_c[c_f].min())/100*5
     c_s_max, c_s_min, c_s_a_ave, c_s_b_ave, dy = df_c[c_s].max(), df_c[c_s].min(), feature_A[c_s].mean(), feature_B[c_s].mean(), (df_c[c_s].max() - df_c[c_s].min())/100*5
 
-    _checker(c_f, c_s, feature_A_M, feature_A_W, feature_B_M, feature_B_W, c_f_a_ave, c_f_b_ave, c_s_a_ave, c_s_b_ave)
+    _multiple_checker(c_f, c_s, feature_A_M, feature_A_W, feature_B_M, feature_B_W, c_f_a_ave, c_f_b_ave, c_s_a_ave, c_s_b_ave)
 
     axs.scatter(feature_A_M[c_f].values, feature_A_M[c_s].values, alpha=0.8, s=100, c="red", label="A-male", marker="o")
     axs.scatter(feature_A_W[c_f].values, feature_A_W[c_s].values, alpha=0.8, s=100, c="red", label="A-female", marker="^")
@@ -93,26 +94,3 @@ def draw_out_legend(output_file_path, target_features_df, target_components_colu
     pdf.savefig()
     plt.clf()
   pdf.close()
-
-def _checker(c_f, c_s, feature_A_M, feature_A_W, feature_B_M, feature_B_W, c_f_a_ave, c_f_b_ave, c_s_a_ave, c_s_b_ave):
-  for component, a_ave, b_ave in [[c_f, c_f_a_ave, c_f_b_ave], [c_s, c_s_a_ave, c_s_b_ave]]:
-    upper_zero_M  = len(feature_A_M.query(f"{component} > 0")) + len(feature_B_M.query(f"{component} > 0"))
-    lower_zero_M  = len(feature_A_M.query(f"{component} < 0")) + len(feature_B_M.query(f"{component} < 0"))
-    upper_meanA_M = len(feature_A_M.query(f"{component} > {a_ave}"))
-    lower_meanA_M = len(feature_A_M.query(f"{component} < {a_ave}"))
-    upper_meanB_M = len(feature_B_M.query(f"{component} > {b_ave}"))
-    lower_meanB_M = len(feature_B_M.query(f"{component} < {b_ave}"))
-    upper_zero_W  = len(feature_A_W.query(f"{component} > 0")) + len(feature_B_W.query(f"{component} > 0"))
-    lower_zero_W  = len(feature_A_W.query(f"{component} < 0")) + len(feature_B_W.query(f"{component} < 0"))
-    upper_meanA_W = len(feature_A_W.query(f"{component} > {a_ave}"))
-    lower_meanA_W = len(feature_A_W.query(f"{component} < {a_ave}"))
-    upper_meanB_W = len(feature_B_W.query(f"{component} > {b_ave}"))
-    lower_meanB_W = len(feature_B_W.query(f"{component} < {b_ave}"))
-    print("=========================================")
-    print(f"c_f: {c_f}, c_s: {c_s} ---- {component}")
-    print(f"M -- {c_f}>0      :{upper_zero_M}, {c_f}<0      :{lower_zero_M} ")
-    print(f"M -- {c_f}>A_mean :{upper_meanA_M}, {c_f}<A_mean :{lower_meanA_M}")
-    print(f"M -- {c_f}>B_mean :{upper_meanB_M}, {c_f}<B_mean :{lower_meanB_M}")
-    print(f"W -- {c_f}>0      :{upper_zero_W}, {c_f}<0      :{lower_zero_W} ")
-    print(f"W -- {c_f}>A_mean :{upper_meanA_W}, {c_f}<A_mean :{lower_meanA_W}")
-    print(f"W -- {c_f}>B_mean :{upper_meanB_W}, {c_f}<B_mean :{lower_meanB_W}")

@@ -84,5 +84,8 @@ def _drop_outlier(origin_df, c):
   c_lower_limit  = c_q1 - 1.5 * c_iqr                 # 下限値として、q1 から 1.5 * iqrを引いたもの 
   c_upper_limit  = c_q3 + 1.5 * c_iqr                 # 上限値として、q3 から 1.5 * iqrをたしたもの 
   dropped_df = origin_df.query(f'{c_lower_limit} <= {c} <= {c_upper_limit}')
+  print("=======================================")
+  print(f"components: {c}")
+  print(dropped_df)
   dropped_df = pd.DataFrame(dropped_df)
   return dropped_df

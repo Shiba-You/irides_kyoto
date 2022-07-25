@@ -1,0 +1,58 @@
+digraph {
+	"pNN50_hVRf2
+(pNN50_心理的安定化)"
+	"HF_hVRf2
+(HF_心理的安定化)"
+	"RMSSD_hVRf2
+(RMSSD_心理的安定化)"
+	"LF/HF_hBreak
+(LF/HF_5分休憩)"
+	"Anx_Break
+(5. 休憩後_状態不安)"
+	"LF_hVRf0
+(LF_テスト歩行)"
+	"Anx_VR
+(4. 津波後_状態不安)"
+	"HF_hBreak
+(HF_5分休憩)"
+	"LF/HF_hVRf1
+(LF/HF_津波避難VR準備)"
+	"Anx_VRf0
+(3. テスト歩行後_状態不安)"
+	"HF_hVRf2
+(HF_心理的安定化)" -> "pNN50_hVRf2
+(pNN50_心理的安定化)" [label=0.78]
+	"LF_hVRf0
+(LF_テスト歩行)" -> "pNN50_hVRf2
+(pNN50_心理的安定化)" [label=0.05]
+	"LF_hVRf0
+(LF_テスト歩行)" -> "HF_hVRf2
+(HF_心理的安定化)" [label=0.56]
+	"pNN50_hVRf2
+(pNN50_心理的安定化)" -> "RMSSD_hVRf2
+(RMSSD_心理的安定化)" [label=0.48]
+	"HF_hVRf2
+(HF_心理的安定化)" -> "RMSSD_hVRf2
+(RMSSD_心理的安定化)" [label=0.36]
+	"LF_hVRf0
+(LF_テスト歩行)" -> "RMSSD_hVRf2
+(RMSSD_心理的安定化)" [label=0.08]
+	"Anx_VR
+(4. 津波後_状態不安)" -> "Anx_Break
+(5. 休憩後_状態不安)" [label=0.64]
+	"LF/HF_hBreak
+(LF/HF_5分休憩)" -> "Anx_VR
+(4. 津波後_状態不安)" [label=-0.39]
+	"pNN50_hVRf2
+(pNN50_心理的安定化)" -> "HF_hBreak
+(HF_5分休憩)" [label=0.50]
+	"LF/HF_hBreak
+(LF/HF_5分休憩)" -> "LF/HF_hVRf1
+(LF/HF_津波避難VR準備)" [label=0.33]
+	"Anx_VR
+(4. 津波後_状態不安)" -> "Anx_VRf0
+(3. テスト歩行後_状態不安)" [label=0.59]
+	{
+		rank=same
+	}
+}

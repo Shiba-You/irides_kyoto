@@ -20,6 +20,7 @@ from utils.figure_drawers import draw_scatter
 from utils.figure_drawers import draw_ticker
 from utils.table_makers import make_eigenvector
 from utils.table_makers import make_components_information
+from utils.loggers import checkers
 import importlib
 
 
@@ -36,14 +37,15 @@ importlib.reload(draw_scatter)
 importlib.reload(draw_ticker)
 importlib.reload(make_eigenvector)
 importlib.reload(make_components_information)
+importlib.reload(checkers)
 
 today = str(datetime.date.today())
 date_format = today[2:4] + today[5:7] + today[8:10]
 
 #? >>>> ここは変更する >>>>
-input_file_name = "220707 調査報告書+IDs_A先.xlsx"
+input_file_name = "220707 arange_data.xlsx"
 output_file_name = date_format
-dir_names = "07_PC1,2,5,6,IC1,6,8"              #! input と result のディレクトリ名
+dir_names = "01_main_feature"                   #! input と result のディレクトリ名
 target_sheet_number = 3                         #! {3: 03_PC_IC,    4: _03_PC_IC_A後}
 n_components = 10                               #! components をどこまで加味するか
 target_components = {
@@ -112,13 +114,17 @@ def main():
   #! 主成分散布図
   # draw_scatter.draw(output_file_path, target_features_df, target_components_columns, outliers = True)
   #! 主成分散布図 - 外側に凡例を表示
-  draw_scatter.draw_out_legend(output_file_path, target_features_df, target_components_columns, outliers = True)
+  # draw_scatter.draw_out_legend(output_file_path, target_features_df, target_components_columns, outliers = True)
   # #! ヒストグラム
   # draw_histgram.draw(output_file_path, target_features_df, target_components_columns)
   # #! 寄与度相関
   # draw_relations.draw(output_file_path, target_components_columns, target_components_df, df)
   #? ==================================================================
 
+  #? ============================ ログ出力 ==============================
+  #! 各 component 毎の外れ値出力
+  checkers.output_check(target_features_df, target_components_columns)
+  #? ==================================================================
 
 
 if __name__ == "__main__":

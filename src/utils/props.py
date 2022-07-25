@@ -3,6 +3,7 @@ import sys
 import pandas as pd
 import openpyxl
 import glob
+from PyPDF2 import PdfFileMerger
 
 '''
 データの初期化
@@ -53,3 +54,19 @@ def output_to_sheet(df, output_file_path, sheet_name):
       df.to_excel(writer, sheet_name=sheet_name)
   except:
     print("既に作成済みです．")
+
+def arange_target_components_obj(target_components, target_sheet_num):
+  target_components_obj = {}
+  for key, val in target_components.items():
+    for i in val:
+      target_components_obj[f"{key}{i+1}"] = target_sheet_num
+      target_sheet_num += 1
+  return target_components_obj
+
+def merge_same_size_fig(output_file_path, target_components_obj):
+  merger = PdfFileMerger()
+  for target_component_name in target_components_obj:
+    print(f"{output_file_path}_{target_component_name}.pdf")
+    merger.append(f"{output_file_path}_{target_component_name}.pdf")
+  merger.write(f"{output_file_path}_LiNGAM")
+  
