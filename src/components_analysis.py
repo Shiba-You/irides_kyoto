@@ -47,7 +47,7 @@ input_file_name = "220707 arange_data.xlsx"
 output_file_name = date_format
 dir_names = "01_main_feature"                   #! input と result のディレクトリ名
 target_sheet_number = 3                         #! {3: 03_PC_IC,    4: _03_PC_IC_A後}
-n_components = 10                               #! components をどこまで加味するか
+n_components = 15                               #! components をどこまで加味するか
 target_components = {
   "PC": [0, 1, 4, 8],
   "IC": [1, 2, 4]
@@ -84,7 +84,7 @@ def main():
 
   #? ============================ グラフ生成 ============================
   # #! 累積寄与率
-  # draw_ticker.draw(output_file_path, df, n_components, pca)
+  draw_ticker.draw(output_file_path, n_components, pca)
   # #! 固有ベクトルの累積寄与率
   # draw_cumulative_contribution_rate.draw(output_file_path, df, n_components, pca_components)
   # #! pca + ica 箱ひげ図（拡大）
@@ -123,7 +123,7 @@ def main():
 
   #? ============================ ログ出力 ==============================
   #! 各 component 毎の外れ値出力
-  checkers.output_check(target_features_df, target_components_columns)
+  # checkers.output_check(target_features_df, target_components_columns)
   #? ==================================================================
 
 
