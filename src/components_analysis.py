@@ -88,7 +88,7 @@ def main():
   # #! 固有ベクトルの累積寄与率
   # draw_cumulative_contribution_rate.draw(output_file_path, df, n_components, pca_components)
   # #! pca + ica 箱ひげ図（拡大）
-  # draw_boxplot.draw(output_file_path, feature, X_transformed, group_and_gender)
+  draw_boxplot.draw(output_file_path, feature, X_transformed, group_and_gender)
   #? ==================================================================
 
   #? ========================== テーブル生成 =============================
@@ -106,7 +106,7 @@ def main():
   #? ******************************************************************
   
   #? ============================ データ変製 ============================
-  target_features_df = generate_target_features.generate(target_components, target_components_columns, feature, X_transformed, group_and_gender)
+  # target_features_df = generate_target_features.generate(target_components, target_components_columns, feature, X_transformed, group_and_gender)
   # target_components_df  = generate_target_components.generate(target_components, target_components_columns, pca, ica)
   #? ==================================================================
 

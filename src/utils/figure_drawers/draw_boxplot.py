@@ -22,9 +22,10 @@ def draw(output_file_path, feature, X_transformed, group_and_gender):
       hue="group",
       data=temp_df,
       ax=axs[i%2],
-      palette=color_palette
+      palette=color_palette,
     )
     axs[i%2].legend(loc='upper right')
+    # axs[i%2].legend([],[],frameon=False)
     lim_range = (-5,5) if i == 0 else (-.5,.5)
     axs[i%2].set(ylim=(lim_range))
   pdf.savefig()

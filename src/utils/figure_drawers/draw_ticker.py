@@ -19,14 +19,15 @@ def draw(output_file_path, n_components, pca):
   dx, dy = props._calc_lim(ax)
   accumulation_list = [0] + list(np.cumsum(pca.explained_variance_ratio_))
   ratio_list = [0] * len(accumulation_list)
+  print(accumulation_list)
   for i in range(len(accumulation_list)):
     if i != 0:
       ratio_list[i] = accumulation_list[i] - accumulation_list[i-1]
   #! 折れ線グラフ
   ax.plot(accumulation_list, "-o")
-  for x, y in enumerate(accumulation_list):
-    if x != 0:
-      ax.text(x-dx-.3, y+dy, x)
+  # for x, y in enumerate(accumulation_list):
+  #   if x != 0:
+  #     ax.text(x-dx-.3, y+dy, x)
   ax.grid()
   ax.hlines(0.9, -1, n_components+1, "red", linestyles='dashed')
   ax.set_xlim(-dx*30, n_components+dx*30)
