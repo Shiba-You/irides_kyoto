@@ -14,9 +14,11 @@ output:   X_transformed         ::  <numpy.ndarray>    (n_samples = 31, n_compon
 '''
 def generate(n_components, df):
   ica = FastICA(n_components=n_components, random_state=0)
+  # ica = FastICA(random_state=0)
   X_transformed = ica.fit_transform(df)  #? (n_samples, n_features) => (n_samples, n_components): 各サンプルがそれぞれの主成分をどれだけ有しているかを分布する
   ica_components = ica.components_
   pca = PCA(n_components=n_components)
+  # pca = PCA()
   pca.fit(df)
   feature = pca.transform(df)            #? (n_samples, n_features) => (n_samples, n_components): 各サンプルがそれぞれの主成分をどれだけ有しているかを分布する
   pca_components = pca.components_

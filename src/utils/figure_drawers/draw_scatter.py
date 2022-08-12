@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import itertools
-from utils.loggers.checkers import _multiple_checker
+from utils.loggers.checker import _multiple_checker
 from .. import arange_data
 
 def draw(output_file_path, target_features_df, target_components_columns, outliers = True):

@@ -20,7 +20,8 @@ from utils.figure_drawers import draw_scatter
 from utils.figure_drawers import draw_ticker
 from utils.table_makers import make_eigenvector
 from utils.table_makers import make_components_information
-from utils.loggers import checkers
+from utils.loggers import checker
+from utils.loggers import mathematical_checker
 import importlib
 
 
@@ -37,7 +38,8 @@ importlib.reload(draw_scatter)
 importlib.reload(draw_ticker)
 importlib.reload(make_eigenvector)
 importlib.reload(make_components_information)
-importlib.reload(checkers)
+importlib.reload(checker)
+importlib.reload(mathematical_checker)
 
 today = str(datetime.date.today())
 date_format = today[2:4] + today[5:7] + today[8:10]
@@ -47,7 +49,7 @@ input_file_name = "220707 arange_data.xlsx"
 output_file_name = date_format
 dir_names = "01_main_feature"                   #! input と result のディレクトリ名
 target_sheet_number = 3                         #! {3: 03_PC_IC,    4: _03_PC_IC_A後}
-n_components = 15                               #! components をどこまで加味するか
+n_components = 31                               #! components をどこまで加味するか
 target_components = {
   "PC": [0, 1, 4, 8],
   "IC": [1, 2, 4]
@@ -84,11 +86,11 @@ def main():
 
   #? ============================ グラフ生成 ============================
   # #! 累積寄与率
-  draw_ticker.draw(output_file_path, n_components, pca)
+  # draw_ticker.draw(output_file_path, n_components, pca)
   # #! 固有ベクトルの累積寄与率
   # draw_cumulative_contribution_rate.draw(output_file_path, df, n_components, pca_components)
   # #! pca + ica 箱ひげ図（拡大）
-  draw_boxplot.draw(output_file_path, feature, X_transformed, group_and_gender)
+  # draw_boxplot.draw(output_file_path, feature, X_transformed, group_and_gender)
   #? ==================================================================
 
   #? ========================== テーブル生成 =============================
@@ -124,10 +126,11 @@ def main():
   #? ============================ ログ出力 ==============================
   #! 各 component 毎の外れ値出力
   # checkers.output_check(target_features_df, target_components_columns)
+  #! 数学的なテスト
+  mathematical_checker.checker(feature, pca_components, pca, df, n_components)
   #? ==================================================================
 
 
 if __name__ == "__main__":
   main()
 
-# %%
