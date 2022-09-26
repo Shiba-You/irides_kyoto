@@ -1,0 +1,112 @@
+digraph {
+	"AC_hBreak
+(AC_5分休憩)"
+	"AC_hVR
+(AC_津波避難VR)"
+	"AC_hVRf0
+(AC_テスト歩行)"
+	"AC_hVRf2
+(AC_心理的安定化)"
+	"AC_h2D
+(AC_実験教示)"
+	"DC_hVR
+(DC_津波避難VR)"
+	"DC_hBreak
+(DC_5分休憩)"
+	"DC_hVRf2
+(DC_心理的安定化)"
+	"DC_hVRf0
+(DC_テスト歩行)"
+	"DC_h2D
+(DC_実験教示)"
+	"AC_hVR
+(AC_津波避難VR)" -> "AC_hBreak
+(AC_5分休憩)" [label=0.95]
+	"DC_hVR
+(DC_津波避難VR)" -> "AC_hBreak
+(AC_5分休憩)" [label=-0.04]
+	"AC_hVRf0
+(AC_テスト歩行)" -> "AC_hVR
+(AC_津波避難VR)" [label=1.32]
+	"AC_h2D
+(AC_実験教示)" -> "AC_hVR
+(AC_津波避難VR)" [label=-0.38]
+	"DC_hVRf0
+(DC_テスト歩行)" -> "AC_hVR
+(AC_津波避難VR)" [label=-0.32]
+	"DC_h2D
+(DC_実験教示)" -> "AC_hVR
+(AC_津波避難VR)" [label=0.29]
+	"AC_h2D
+(AC_実験教示)" -> "AC_hVRf0
+(AC_テスト歩行)" [label=0.94]
+	"DC_hVRf0
+(DC_テスト歩行)" -> "AC_hVRf0
+(AC_テスト歩行)" [label=-0.52]
+	"DC_h2D
+(DC_実験教示)" -> "AC_hVRf0
+(AC_テスト歩行)" [label=0.48]
+	"AC_hBreak
+(AC_5分休憩)" -> "AC_hVRf2
+(AC_心理的安定化)" [label=1.28]
+	"AC_hVRf0
+(AC_テスト歩行)" -> "AC_hVRf2
+(AC_心理的安定化)" [label=-0.33]
+	"AC_h2D
+(AC_実験教示)" -> "AC_hVRf2
+(AC_心理的安定化)" [label=0.05]
+	"DC_hVR
+(DC_津波避難VR)" -> "AC_hVRf2
+(AC_心理的安定化)" [label=-0.34]
+	"DC_hBreak
+(DC_5分休憩)" -> "AC_hVRf2
+(AC_心理的安定化)" [label=1.03]
+	"DC_hVRf2
+(DC_心理的安定化)" -> "AC_hVRf2
+(AC_心理的安定化)" [label=-0.62]
+	"DC_h2D
+(DC_実験教示)" -> "AC_hVRf2
+(AC_心理的安定化)" [label=-0.05]
+	"DC_h2D
+(DC_実験教示)" -> "AC_h2D
+(AC_実験教示)" [label=-0.90]
+	"AC_hVR
+(AC_津波避難VR)" -> "DC_hVR
+(DC_津波避難VR)" [label=-0.38]
+	"AC_hVRf0
+(AC_テスト歩行)" -> "DC_hVR
+(DC_津波避難VR)" [label=0.25]
+	"DC_hVRf0
+(DC_テスト歩行)" -> "DC_hVR
+(DC_津波避難VR)" [label=1.09]
+	"DC_h2D
+(DC_実験教示)" -> "DC_hVR
+(DC_津波避難VR)" [label=-0.21]
+	"AC_hBreak
+(AC_5分休憩)" -> "DC_hBreak
+(DC_5分休憩)" [label=-0.24]
+	"AC_hVRf0
+(AC_テスト歩行)" -> "DC_hBreak
+(DC_5分休憩)" [label=0.21]
+	"DC_hVR
+(DC_津波避難VR)" -> "DC_hBreak
+(DC_5分休憩)" [label=0.96]
+	"AC_hBreak
+(AC_5分休憩)" -> "DC_hVRf2
+(DC_心理的安定化)" [label=-0.32]
+	"AC_hVR
+(AC_津波避難VR)" -> "DC_hVRf2
+(DC_心理的安定化)" [label=-0.17]
+	"AC_hVRf0
+(AC_テスト歩行)" -> "DC_hVRf2
+(DC_心理的安定化)" [label=0.37]
+	"DC_hBreak
+(DC_5分休憩)" -> "DC_hVRf2
+(DC_心理的安定化)" [label=0.87]
+	"DC_h2D
+(DC_実験教示)" -> "DC_hVRf0
+(DC_テスト歩行)" [label=0.91]
+	{
+		rank=same
+	}
+}

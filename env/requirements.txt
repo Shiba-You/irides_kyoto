@@ -13,3 +13,5 @@ graphviz
 statsmodels
 factor_analyzer
 igraph
+PyPDF2
+lingam

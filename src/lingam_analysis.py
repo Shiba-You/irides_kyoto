@@ -45,7 +45,7 @@ def main():
     #! lingam グラフの作成
     draw_lingam.draw(df, output_file_path, target_component_name)
   #! pdf を一つ目にまとめる
-  props.merge_same_size_fig(output_file_path, target_components_obj)
+  # props.merge_same_size_fig(output_file_path, target_components_obj)
   
   #? ==================================================================
 
@@ -54,3 +54,4 @@ if __name__ == "__main__":
   main()
 
 # %%
+

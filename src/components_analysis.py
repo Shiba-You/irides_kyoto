@@ -86,7 +86,7 @@ def main():
 
   #? ============================ グラフ生成 ============================
   # #! 累積寄与率
-  # draw_ticker.draw(output_file_path, n_components, pca)
+  draw_ticker.draw(output_file_path, n_components, pca)
   # #! 固有ベクトルの累積寄与率
   # draw_cumulative_contribution_rate.draw(output_file_path, df, n_components, pca_components)
   # #! pca + ica 箱ひげ図（拡大）
