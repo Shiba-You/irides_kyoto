@@ -2,28 +2,22 @@
 '''
 python @ 3.10.2
 '''
-import pandas as pd
 import datetime
+import importlib
 import os
 import sys
 
-from utils import props
-from utils import arange_data
-from utils.data_generators import generate_components
-from utils.data_generators import generate_target_features
-from utils.data_generators import generate_target_components
-from utils.figure_drawers import draw_boxplot
-from utils.figure_drawers import draw_cumulative_contribution_rate
-from utils.figure_drawers import draw_histgram
-from utils.figure_drawers import draw_relations
-from utils.figure_drawers import draw_scatter
-from utils.figure_drawers import draw_ticker
-from utils.table_makers import make_eigenvector
-from utils.table_makers import make_components_information
-from utils.loggers import checker
-from utils.loggers import mathematical_checker
-import importlib
-
+import pandas as pd
+from utils import arange_data, props
+from utils.data_generators import (generate_components,
+                                   generate_target_components,
+                                   generate_target_features)
+from utils.figure_drawers import (draw_boxplot,
+                                  draw_cumulative_contribution_rate,
+                                  draw_histgram, draw_relations, draw_scatter,
+                                  draw_ticker)
+from utils.loggers import checker, mathematical_checker
+from utils.table_makers import make_components_information, make_eigenvector
 
 importlib.reload(props)
 importlib.reload(arange_data)
@@ -86,11 +80,11 @@ def main():
 
   #? ============================ グラフ生成 ============================
   # #! 累積寄与率
-  draw_ticker.draw(output_file_path, n_components, pca)
+  # draw_ticker.draw(output_file_path, n_components, pca)
   # #! 固有ベクトルの累積寄与率
   # draw_cumulative_contribution_rate.draw(output_file_path, df, n_components, pca_components)
   # #! pca + ica 箱ひげ図（拡大）
-  # draw_boxplot.draw(output_file_path, feature, X_transformed, group_and_gender)
+  draw_boxplot.draw(output_file_path, feature, X_transformed, group_and_gender)
   #? ==================================================================
 
   #? ========================== テーブル生成 =============================
@@ -127,10 +121,12 @@ def main():
   #! 各 component 毎の外れ値出力
   # checkers.output_check(target_features_df, target_components_columns)
   #! 数学的なテスト
-  mathematical_checker.checker(feature, pca_components, pca, df, n_components)
+  # mathematical_checker.checker(feature, pca_components, pca, df, n_components)
   #? ==================================================================
 
 
 if __name__ == "__main__":
   main()
 
+
+# %%

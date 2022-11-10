@@ -59,6 +59,14 @@ def arange_pca_and_ica(method, feature, X_transformed, gender_and_group):
       df = pd.concat([df, df_ic])
   return df
 
+def arange_action_and_diff(origin_df, n):
+  df_ndarray = origin_df.to_numpy()
+  df = pd.DataFrame({"feature": origin_df.columns[1+10*n], "value": df_ndarray[:,1+10*n], "action": df_ndarray[:,0]})
+  for i in range(2+10*n, 11+10*n):
+    df_tmp = pd.DataFrame({"feature": origin_df.columns[i], "value": df_ndarray[:,i], "action": df_ndarray[:,0]})
+    df = pd.concat([df, df_tmp])
+  return df
+
 def _drop_outliers(origin_df, c_f, c_s):
   c_f_q1 = origin_df[c_f].quantile(0.25)                    # 第1四分位数
   c_f_q3 = origin_df[c_f].quantile(0.75)                    # 第3四分位値

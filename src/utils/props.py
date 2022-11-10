@@ -12,7 +12,7 @@ input :   input_file_name       ::  <string>      入力ファイル名
 output:   df                    ::  <DataFrame>   元のデータから group, gender を除外して 正規化 & 欠損値処理 した dataFrame
           key                   ::  <string[]>    全特徴量の配列
 '''
-def init_data(input_file_name, target_sheet_number):
+def init_data(input_file_name, target_sheet_number, gg_flag=True):
   if os.path.exists(input_file_name):
     xls = pd.ExcelFile(input_file_name)
     sheets = xls.sheet_names
@@ -22,16 +22,22 @@ def init_data(input_file_name, target_sheet_number):
   else:
     print("ファイルが存在しません．")
     sys.exit()
-  group = pd.Series(df["群"], name='group')
-  gender = pd.Series(df["性別"], name='gender')
-  group_and_gender = pd.concat([group, gender], axis=1)
-  df = _normalize_data(df, key)
+  group_and_gender = []
+  if gg_flag:
+    group = pd.Series(df["群"], name='group')
+    gender = pd.Series(df["性別"], name='gender')
+    group_and_gender = pd.concat([group, gender], axis=1)
+  df = _normalize_data(df, key, gg_flag)
   return df, group_and_gender
 
-def _normalize_data(df, key):
-  normalized_df = df.iloc[:, 3:].apply(lambda x: (x-x.mean())/x.std(), axis=0)
-  for k in key:
-    normalized_df[k] = normalized_df[k].fillna(normalized_df[k].mean())
+def _normalize_data(df, key, gg_flag):
+  if gg_flag:
+    normalized_df = df.iloc[:, 3:]
+    normalized_df = normalized_df.apply(lambda x: (x-x.mean())/x.std(), axis=0)
+    for k in key:
+      normalized_df[k] = normalized_df[k].fillna(normalized_df[k].mean())
+  else:
+    normalized_df = df.iloc[:, 2:]
   return normalized_df
 
 def _calc_lim(axs):

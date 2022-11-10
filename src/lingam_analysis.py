@@ -2,14 +2,14 @@
 '''
 python @ 3.10.2
 '''
-import pandas as pd
 import datetime
+import importlib
 import os
 import sys
 
+import pandas as pd
 from utils import props
 from utils.figure_drawers import draw_lingam
-import importlib
 
 importlib.reload(props)
 importlib.reload(draw_lingam)
