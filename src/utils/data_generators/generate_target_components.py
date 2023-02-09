@@ -1,6 +1,13 @@
 import numpy as np
 import pandas as pd
 
+'''
+コンポーネントの生成
+input :   target_components          ::  <DataFrame>
+          target_components_columns  ::  <string[]>         加味する成分の名前の配列
+          ica                        ::  <Custom>           FastICA
+          pca                        ::  <Custom>           PCA
+'''
 def generate(target_components, target_components_columns, pca, ica):
   _target_c = []
   for key, val in target_components.items():

@@ -5,6 +5,11 @@ from .. import arange_data
 import pandas as pd
 import itertools
 
+'''
+成分の群毎の棒グラフのPDF出力
+input :   output_file_path       ::  <string>           PDFの出力先
+          feature                ::  <numpy.ndarray>    (n_samples = 31, n_components) : 各サンプルがそれぞれの主成分をどれだけ有しているかを分布する
+'''
 def draw(output_file_path, feature):
   pdf = PdfPages(output_file_path+"_棒グラフ.pdf")
   sns.set(font='IPAexGothic', font_scale = 1)

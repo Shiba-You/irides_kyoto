@@ -2,6 +2,13 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from .. import arange_data
 
+'''
+成分毎のヒストグラムのPDF出力
+input :   output_file_path            ::  <string>           PDFの出力先
+          target_features_df          ::  <DataFrame>        (n_samples, n_components + group_and_gender) : 成分得点と性別・グループのdataframe
+          target_components_columns   ::  <string[]>         加味する成分名の配列
+          outliers                    ::  <boolean>          legendをグラフの中に入れるかどうか
+'''
 def draw(output_file_path, target_features_df, target_components_columns, outliers = True):
   pdf = PdfPages(output_file_path+"_ヒストグラム.pdf")
   feature_A = target_features_df.query('group == "A"')

@@ -10,7 +10,7 @@ from PyPDF2 import PdfFileMerger
 input :   input_file_name       ::  <string>      入力ファイル名
           target_sheet_number   ::  <string>      入力ファイルの内参照するシート番号
 output:   df                    ::  <DataFrame>   元のデータから group, gender を除外して 正規化 & 欠損値処理 した dataFrame
-          key                   ::  <string[]>    全特徴量の配列
+          group_and_gender      ::  <DataFrame>   (n_samples = 31, 群 + 性別)  
 '''
 def init_data(input_file_name, target_sheet_number, start_columns=3, gg_flag=True):
   if os.path.exists(input_file_name):

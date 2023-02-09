@@ -3,6 +3,13 @@ from matplotlib.backends.backend_pdf import PdfPages
 import itertools
 from adjustText import adjust_text
 
+'''
+2成分の散布図のPDF出力
+input :   output_file_path            ::  <string>           PDFの出力先
+          target_components_columns   ::  <string[]>         加味する成分名の配列
+          target_components_df        ::  <DataFrame>        加味する成分の成分得点のdataFrame
+          df                          ::  <DataFrame>        元のデータから group, gender を除外して 正規化 & 欠損値処理 した dataFrame
+'''
 def draw(output_file_path, target_components_columns, target_components_df, df):
   pdf = PdfPages(output_file_path+"_寄与度相関.pdf")
   i = 0

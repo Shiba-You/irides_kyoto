@@ -6,11 +6,9 @@ import numpy as np
 from .. import props
 
 '''
-固有ベクトル毎の累積寄与率のPDF出力
+固有ベクトル毎のタイムラインのPDF出力
 input :   output_file_path      ::  <string>           PDFの出力先
           df                    ::  <DataFrame>        元のデータから group, gender を除外して 正規化 & 欠損値処理 した dataFrame
-          pca                   ::  <Custom>           PCA
-          n_components          ::  <number>           加味する components 数
 '''
 
 def draw(output_file_path, df):

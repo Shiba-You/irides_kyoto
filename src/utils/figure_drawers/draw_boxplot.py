@@ -3,6 +3,14 @@ from matplotlib.backends.backend_pdf import PdfPages
 import seaborn as sns
 from .. import arange_data
 
+'''
+成分の群毎の箱ひげ図のPDF出力
+input :   output_file_path       ::  <string>           PDFの出力先
+          feature                ::  <numpy.ndarray>    (n_samples = 31, n_components) : 各サンプルがそれぞれの主成分をどれだけ有しているかを分布する
+          X_transformed          ::  <numpy.ndarray>    (n_samples = 31, n_components) : 各サンプルがそれぞれの主成分をどれだけ有しているかを分布する
+          group_and_gender       ::  <DataFrame>        (n_samples = 31, 群 + 性別)  
+          component_flag         ::  <boolean>          {True: 特徴量毎の箱ひげ図を出力， False: 成分毎の箱ひげ図を出力}
+'''
 def draw(output_file_path, feature, X_transformed, group_and_gender, component_flag=True):
   pdf = PdfPages(output_file_path+"_箱ひげ図.pdf")
   sns.set(font='IPAexGothic', font_scale = 1)

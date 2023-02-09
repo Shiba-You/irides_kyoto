@@ -6,6 +6,13 @@ import pandas as pd
 from .. import arange_data
 from sklearn.linear_model import LinearRegression
 
+'''
+2成分の散布図のPDF出力
+input :   output_file_path            ::  <string>           PDFの出力先
+          target_features_df          ::  <DataFrame>        (n_samples, n_components + group_and_gender) : 成分得点と性別・グループのdataframe
+          target_components_columns   ::  <string[]>         加味する成分名の配列
+          outliers                    ::  <boolean>          legendをグラフの中に入れるかどうか
+'''
 def draw(output_file_path, target_features_df, target_components_columns, outliers = True):
   pdf = PdfPages(output_file_path+"_成分散布図.pdf")
   i = 0
