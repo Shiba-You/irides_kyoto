@@ -12,13 +12,13 @@ input :   input_file_name       ::  <string>      入力ファイル名
 output:   df                    ::  <DataFrame>   元のデータから group, gender を除外して 正規化 & 欠損値処理 した dataFrame
           key                   ::  <string[]>    全特徴量の配列
 '''
-def init_data(input_file_name, target_sheet_number, gg_flag=True):
+def init_data(input_file_name, target_sheet_number, start_columns=3, gg_flag=True):
   if os.path.exists(input_file_name):
     xls = pd.ExcelFile(input_file_name)
     sheets = xls.sheet_names
     input_sheet = sheets[target_sheet_number]
     df = pd.DataFrame(xls.parse(input_sheet))
-    key = list(df.columns)[3:]
+    key = list(df.columns)[start_columns:]
   else:
     print("ファイルが存在しません．")
     sys.exit()

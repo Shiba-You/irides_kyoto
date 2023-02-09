@@ -61,8 +61,8 @@ def arange_pca_and_ica(method, feature, X_transformed, gender_and_group):
 
 def arange_action_and_diff(origin_df, n):
   df_ndarray = origin_df.to_numpy()
-  df = pd.DataFrame({"feature": origin_df.columns[1+10*n], "value": df_ndarray[:,1+10*n], "action": df_ndarray[:,0]})
-  for i in range(2+10*n, 11+10*n):
+  df = pd.DataFrame({"feature": origin_df.columns[2+10*n], "value": df_ndarray[:,2+10*n], "action": df_ndarray[:,0]})
+  for i in range(3+10*n, 12+10*n):
     df_tmp = pd.DataFrame({"feature": origin_df.columns[i], "value": df_ndarray[:,i], "action": df_ndarray[:,0]})
     df = pd.concat([df, df_tmp])
   return df
@@ -79,9 +79,9 @@ def _drop_outliers(origin_df, c_f, c_s):
   c_s_lower_limit  = c_s_q1 - 1.5 * c_s_iqr                 # 下限値として、q1 から 1.5 * iqrを引いたもの 
   c_s_upper_limit  = c_s_q3 + 1.5 * c_s_iqr                 # 上限値として、q3 から 1.5 * iqrをたしたもの 
   dropped_df = origin_df.query(f'{c_f_lower_limit} <= {c_f} <= {c_f_upper_limit} & {c_s_lower_limit} <= {c_s} <= {c_s_upper_limit}')
-  print("=======================================")
-  print(f"c_f: {c_f}, c_s: {c_s}")
-  print(origin_df.query(f'not ({c_f_lower_limit} <= {c_f} <= {c_f_upper_limit} & {c_s_lower_limit} <= {c_s} <= {c_s_upper_limit})'))
+  # print("=======================================")
+  # print(f"c_f: {c_f}, c_s: {c_s}")
+  # print(origin_df.query(f'not ({c_f_lower_limit} <= {c_f} <= {c_f_upper_limit} & {c_s_lower_limit} <= {c_s} <= {c_s_upper_limit})'))
   dropped_df = pd.DataFrame(dropped_df)
   return dropped_df
 

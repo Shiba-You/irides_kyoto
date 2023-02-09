@@ -2,7 +2,9 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import itertools
 from utils.loggers.checker import _multiple_checker
+import pandas as pd
 from .. import arange_data
+from sklearn.linear_model import LinearRegression
 
 def draw(output_file_path, target_features_df, target_components_columns, outliers = True):
   pdf = PdfPages(output_file_path+"_成分散布図.pdf")
@@ -54,7 +56,6 @@ def draw_out_legend(output_file_path, target_features_df, target_components_colu
   pdf = PdfPages(output_file_path+"_成分散布図(外凡例).pdf")
   for c_f, c_s in itertools.combinations(target_components_columns, 2):
     f, axs = plt.subplots(1, 1, figsize=(8, 8))
-    # plt.subplots_adjust(wspace=0.5, hspace=0.5)
     if outliers:
       df_c = arange_data._drop_outliers(target_features_df[["group", "gender", c_f, c_s]], c_f, c_s)
     else:
@@ -90,7 +91,86 @@ def draw_out_legend(output_file_path, target_features_df, target_components_colu
     # Put a legend to the right of the current axis
     axs.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     
-    # plt.savefig(output_file_path+f"_{c_f}-{c_s}散布図.svg")
+    pdf.savefig()
+    plt.clf()
+  pdf.close()
+
+def draw_out_legend_2d_3d(output_file_path, feature, gender_and_group):
+  pdf = PdfPages(output_file_path+"_2Dvs3D散布図.pdf")
+  df_ndarray = feature.to_numpy()
+  df = pd.DataFrame({"feature": feature.columns[0], "value": df_ndarray[:,0], "action": gender_and_group['group'], "gender": gender_and_group['gender']})
+  for i in range(1, 20):
+    df_tmp = pd.DataFrame({"feature": feature.columns[i], "value": df_ndarray[:,i], "action": gender_and_group['group'], "gender": gender_and_group['gender']})
+    df = pd.concat([df, df_tmp])
+  feature_columns = df["feature"].unique()
+  for _f in feature_columns:
+    lr_m = LinearRegression()
+    lr_w = LinearRegression()
+    lr_a = LinearRegression()
+
+    plt.rcParams["font.size"] = 20
+
+    f, axs = plt.subplots(1, 1, figsize=(8, 8))
+    plt.subplots_adjust(wspace=0.5, hspace=0.5)
+    
+    df_crt = pd.DataFrame({
+      "value"  : df.query(f"feature == '{_f}'")['value'],
+      "action" : df.query(f"feature == '{_f}'")["action"],
+      "gender" : df.query(f"feature == '{_f}'")["gender"]
+    })
+    
+    feature_2d   = df_crt.query('action == "2d"')
+    feature_3d   = df_crt.query('action == "3d"')
+
+    val_3d = feature_3d[["value"]].reset_index()
+    feature_mix_d = pd.concat([feature_2d, val_3d.loc[:, "value"]], axis=1)
+    feature_mix_d = feature_mix_d.set_axis(['dim2', 'action', 'gender', 'dim3'], axis=1)
+    feature_mix_d = feature_mix_d[["gender", "dim2", "dim3"]]
+
+    feature_mix_d = arange_data._drop_outliers(feature_mix_d[["gender", "dim2", "dim3"]], "dim2", "dim3")
+
+    feature_M = feature_mix_d.query('gender == "男"')
+    feature_W = feature_mix_d.query('gender == "女"')
+
+    axs.scatter(feature_M["dim2"].values, feature_M["dim3"].values, alpha=0.8, s=100, c="red", label="male", marker="o")
+    axs.scatter(feature_W["dim2"].values, feature_W["dim3"].values, alpha=0.8, s=100, c="blue", label="female", marker="^")
+
+    X_m, Y_m = feature_M["dim2"].values.reshape(-1,1), feature_M["dim3"].values.reshape(-1,1)
+    X_w, Y_w = feature_W["dim2"].values.reshape(-1,1), feature_W["dim3"].values.reshape(-1,1)
+    X_a, Y_a = feature_mix_d["dim2"].values.reshape(-1,1), feature_mix_d["dim3"].values.reshape(-1,1)
+    lr_m.fit(X_m, Y_m)
+    lr_w.fit(X_w, Y_w)
+    lr_a.fit(X_a, Y_a)
+
+    axs.plot(X_m, lr_m.predict(X_m), c="red")
+    axs.plot(X_w, lr_w.predict(X_w), c="blue")
+    axs.plot(X_a, lr_a.predict(X_a), c="black")
+
+    print('特徴量　: ', _f)
+    print('回帰係数: ', lr_a.coef_[0]) # 説明変数の係数を出力
+    print('切片　　: ', lr_a.intercept_) # 切片を出力
+    print('')
+
+
+    # axs.set_title(f"{_f}")
+
+    feature_2d_max, feature_2d_min, dx = feature_mix_d["dim2"].max(), feature_mix_d["dim2"].min(), (feature_mix_d["dim2"].max() - feature_mix_d["dim2"].min())/100*5
+    feature_3d_max, feature_3d_min, dy = feature_mix_d["dim3"].max(), feature_mix_d["dim3"].min(), (feature_mix_d["dim3"].max() - feature_mix_d["dim3"].min())/100*5
+
+
+    axs.set_xlim(feature_2d_min-dx, feature_2d_max+dx)
+    axs.set_ylim(feature_2d_min-dy, feature_2d_max+dy)
+
+    axs.set_xlabel("2D")
+    axs.set_ylabel("3D")
+
+    box = axs.get_position()
+    axs.set_position([box.x0*1.5, box.y0*1.5, box.width * 0.8, box.height*0.8])
+    _f = _f.replace('/', '').replace('_', '').replace('saliva', '').replace('(', '').replace(')', '')
+    plt.savefig(f"scatter_{_f}.png")
+    
+    # axs.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+  
     pdf.savefig()
     plt.clf()
   pdf.close()

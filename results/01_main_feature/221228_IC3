@@ -1,0 +1,76 @@
+digraph {
+	"LF_h2D
+(LF_実験教示)"
+	"LF_hBreak
+(LF_5分休憩)"
+	"LF/HF_hBreak
+(LF/HF_5分休憩)"
+	"Anx_VRf0
+(3. テスト歩行後_状態不安)"
+	"CVRR_hVRf1
+(CVRR_津波避難VR準備)"
+	"LF/HF_hVRf1
+(LF/HF_津波避難VR準備)"
+	"kU/l_VR
+(4. 津波後_唾液kU/l)"
+	"LF_hVRf0
+(LF_テスト歩行)"
+	"SDNN_hVRf1
+(SDNN_津波避難VR準備)"
+	"pNN50_hVRf2
+(pNN50_心理的安定化)"
+	"LF_h2D
+(LF_実験教示)" -> "LF_hBreak
+(LF_5分休憩)" [label=0.66]
+	"Anx_VRf0
+(3. テスト歩行後_状態不安)" -> "LF_hBreak
+(LF_5分休憩)" [label=-0.16]
+	"CVRR_hVRf1
+(CVRR_津波避難VR準備)" -> "LF_hBreak
+(LF_5分休憩)" [label=0.25]
+	"kU/l_VR
+(4. 津波後_唾液kU/l)" -> "LF_hBreak
+(LF_5分休憩)" [label=-0.04]
+	"LF_hVRf0
+(LF_テスト歩行)" -> "LF_hBreak
+(LF_5分休憩)" [label=-0.21]
+	"LF_hBreak
+(LF_5分休憩)" -> "LF/HF_hBreak
+(LF/HF_5分休憩)" [label=0.16]
+	"Anx_VRf0
+(3. テスト歩行後_状態不安)" -> "LF/HF_hBreak
+(LF/HF_5分休憩)" [label=-0.17]
+	"LF/HF_hVRf1
+(LF/HF_津波避難VR準備)" -> "LF/HF_hBreak
+(LF/HF_5分休憩)" [label=0.15]
+	"LF_h2D
+(LF_実験教示)" -> "CVRR_hVRf1
+(CVRR_津波避難VR準備)" [label=0.46]
+	"LF/HF_hVRf1
+(LF/HF_津波避難VR準備)" -> "CVRR_hVRf1
+(CVRR_津波避難VR準備)" [label=0.36]
+	"LF_h2D
+(LF_実験教示)" -> "LF_hVRf0
+(LF_テスト歩行)" [label=0.58]
+	"LF_h2D
+(LF_実験教示)" -> "SDNN_hVRf1
+(SDNN_津波避難VR準備)" [label=0.05]
+	"CVRR_hVRf1
+(CVRR_津波避難VR準備)" -> "SDNN_hVRf1
+(SDNN_津波避難VR準備)" [label=0.80]
+	"LF_hBreak
+(LF_5分休憩)" -> "pNN50_hVRf2
+(pNN50_心理的安定化)" [label=0.24]
+	"LF/HF_hBreak
+(LF/HF_5分休憩)" -> "pNN50_hVRf2
+(pNN50_心理的安定化)" [label=-0.29]
+	"kU/l_VR
+(4. 津波後_唾液kU/l)" -> "pNN50_hVRf2
+(pNN50_心理的安定化)" [label=-0.08]
+	"LF_hVRf0
+(LF_テスト歩行)" -> "pNN50_hVRf2
+(pNN50_心理的安定化)" [label=0.38]
+	{
+		rank=same
+	}
+}

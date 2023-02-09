@@ -22,7 +22,6 @@ TIMELINE_DICT = {
   'Break': 4,
   'hVRf2': 5,
   'VRf2': 5,
-
 }
 # def draw(df, output_file_path, component, prior_relationship):
 def draw(df, output_file_path, component):
